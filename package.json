@@ -4,6 +4,7 @@
   "description": "CLI tool to rename JavaScript(ES2015) modules",
   "main": "index.js",
   "scripts": {
+    "compile": "tsc",
     "test": "jest"
   },
   "repository": {
@@ -18,5 +19,16 @@
   "bugs": {
     "url": "https://github.com/Quramy/better-name/issues"
   },
-  "homepage": "https://github.com/Quramy/better-name#readme"
+  "homepage": "https://github.com/Quramy/better-name#readme",
+  "devDependencies": {
+    "@types/babylon": "^6.16.2",
+    "@types/glob": "^5.0.35",
+    "babylon": "^6.18.0",
+    "jest": "^22.4.3",
+    "typescript": "^2.8.1"
+  },
+  "dependencies": {
+    "@types/node": "^9.6.2",
+    "glob": "^7.1.2"
+  }
 }
