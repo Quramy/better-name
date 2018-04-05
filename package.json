@@ -1,0 +1,22 @@
+{
+  "name": "better-name",
+  "version": "1.0.0",
+  "description": "CLI tool to rename JavaScript(ES2015) modules",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Quramy/better-name.git"
+  },
+  "keywords": [
+    "refactor"
+  ],
+  "author": "Quramy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Quramy/better-name/issues"
+  },
+  "homepage": "https://github.com/Quramy/better-name#readme"
+}
