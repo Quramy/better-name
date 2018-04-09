@@ -1,4 +1,7 @@
 import { parse } from "babylon";
+import { File, ImportDeclaration, stringLiteral } from "babel-types";
+import traverse from "babel-traverse";
+import generate from "babel-generator";
 import * as glob from "glob";
 
 export type $DiffKey<T, U> = T extends U ? never : T;
@@ -18,9 +21,11 @@ export interface DocumentRef {
 
 export interface DocumentEntity {
   readonly isDirty: boolean;
-  parse(): this;
-  replacePath(): this;
-  flush(): Promise<void>;
+  parse(): Promise<this>;
+  reader?: SourceReader;
+  writer?: SourceWriter;
+  transform(opt: TransformOptions): this;
+  flush(): Promise<this>;
 }
 
 export class DefaultProject implements Project {
@@ -63,18 +68,89 @@ export function createProject(configuration: ProjectOptions) {
   return new DefaultProject(conf);
 }
 
-export class EstreeDocumentEntity implements DocumentEntity {
+export interface TransformOptions {
+  from: string;
+  to: string;
+}
+
+export interface SourceReader {
+  read(id: string): Promise<string>;
+}
+
+export interface SourceWriter {
+  write(id: string, source: string): Promise<void>;
+}
+
+export class BabylonDocmentEntity implements DocumentEntity {
+
+  
+  private _dirty: boolean = true;
+  private _rawSource?: string;
+  private _file?: File;
+
+  readonly fileId: string;
+
+  reader!: SourceReader;
+  writer!: SourceWriter;
+
+  constructor ({
+    fileId,
+  }: {
+    fileId: string,
+  }) {
+    this.fileId = fileId;
+  }
+
   get isDirty() {
-    // TODO
-    return false;
+    return this._dirty;
   }
-  parse(): this {
-    throw new Error("Method not implemented.");
+
+  // updateSource(source: string) {
+  //   this._dirty= true;
+  //   this._rawSource = source;
+  // }
+
+  async parse() {
+    if (!this._dirty && this._rawSource) {
+      return this;
+    } else {
+      this._rawSource = await this.reader.read(this.fileId);
+      this._file = parse(this._rawSource, {
+        sourceType: "module",
+      });
+      this._dirty = false;
+      return this;
+    }
   }
-  replacePath(): this {
-    throw new Error("Method not implemented.");
+
+  transform({ from, to } : TransformOptions): this {
+    if (!this._file) {
+      throw new Error("Call parse");
+    }
+    let flag = false;
+    traverse(this._file, {
+      ImportDeclaration: (path) => {
+        if (/hogehoge/.test(path.node.source.value)) flag = true;
+      },
+      exit(path) {
+        if (flag && path.isImportDeclaration()) flag = false;
+      },
+      StringLiteral: (path) => {
+        if (flag) {
+          path.replaceWith(stringLiteral(to));
+          flag = false;
+        }
+      },
+    });
+    return this;
   }
-  flush(): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  async flush() {
+    if (!this._file || !this._rawSource) {
+      throw new Error("Cannot flush because the source or AST is not set.");
+    }
+    await this.writer.write(this.fileId, generate(this._file, {}, this._rawSource).code);
+    return this;
   }
+
 }

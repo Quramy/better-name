@@ -21,14 +21,30 @@
   },
   "homepage": "https://github.com/Quramy/better-name#readme",
   "devDependencies": {
+    "@types/babel-generator": "^6.25.1",
+    "@types/babel-traverse": "^6.25.3",
     "@types/babylon": "^6.16.2",
     "@types/glob": "^5.0.35",
+    "@types/jest": "^22.2.2",
+    "@types/node": "^9.6.2",
     "babylon": "^6.18.0",
     "jest": "^22.4.3",
+    "ts-jest": "^22.4.2",
     "typescript": "^2.8.1"
   },
   "dependencies": {
-    "@types/node": "^9.6.2",
+    "babel-generator": "^6.26.1",
+    "babel-traverse": "^6.26.0",
     "glob": "^7.1.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "json"
+    ]
   }
 }
