@@ -3,6 +3,7 @@ import { File, ImportDeclaration, stringLiteral } from "babel-types";
 import traverse from "babel-traverse";
 import generate from "babel-generator";
 import * as glob from "glob";
+import { shouldBeReplaced } from "./functions";
 
 export type $DiffKey<T, U> = T extends U ? never : T;
 export type $Diff<T, U> = Pick<T, $DiffKey<keyof T, keyof U>>;
@@ -105,11 +106,6 @@ export class BabylonDocmentEntity implements DocumentEntity {
     return this._dirty;
   }
 
-  // updateSource(source: string) {
-  //   this._dirty= true;
-  //   this._rawSource = source;
-  // }
-
   async parse() {
     if (!this._dirty && this._rawSource) {
       return this;
@@ -128,16 +124,27 @@ export class BabylonDocmentEntity implements DocumentEntity {
       throw new Error("Call parse");
     }
     let flag = false;
+    let newModuleName: string;
     traverse(this._file, {
       ImportDeclaration: (path) => {
-        if (/hogehoge/.test(path.node.source.value)) flag = true;
+        // if (/hogehoge/.test(path.node.source.value)) flag = true;
+        const result = shouldBeReplaced({
+          targetFileId: this.fileId,
+          targetModuleName: path.node.source.value,
+          movingFileId: from,
+          toFileId: to,
+        });
+        if (result.hit) {
+          flag = true;
+          newModuleName = result.newModuleId;
+        }
       },
       exit(path) {
         if (flag && path.isImportDeclaration()) flag = false;
       },
       StringLiteral: (path) => {
-        if (flag) {
-          path.replaceWith(stringLiteral(to));
+        if (flag && newModuleName) {
+          path.replaceWith(stringLiteral(newModuleName));
           flag = false;
         }
       },
