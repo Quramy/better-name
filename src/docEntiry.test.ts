@@ -1,4 +1,3 @@
-
 import { SourceReader, SourceWriter, createProject, BabylonDocmentEntity } from "./project";
 import * as assert from "assert";
 

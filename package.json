@@ -43,6 +43,7 @@
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.ts$",
     "moduleFileExtensions": [
+      "js",
       "ts",
       "json"
     ]
