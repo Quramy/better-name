@@ -1,6 +1,6 @@
 
 import * as fs from "fs";
-import * as path from "path";
+import { posix as path } from "path";
 
 const defaultExtensions = ["js", "json", "jsx"];
 
@@ -16,7 +16,7 @@ export type RootImportConfig = {
   rootPathPrefix?: string;
 };
 
-export function replaceRootImport(moduleName: string, fileId: string, prjRoot: string, config: RootImportConfig) {
+export function replaceRootImport(moduleName: string, fileId: string, config: RootImportConfig) {
   const prefix = (config.rootPathPrefix || "~") + "/";
   const suffix = config.rootPathSuffix || "";
   if (!moduleName.startsWith(prefix)) {
@@ -25,11 +25,11 @@ export function replaceRootImport(moduleName: string, fileId: string, prjRoot: s
       decorateWithConfig: (name: string) => name,
     };
   }
-  const absModuleName = prjRoot + "/" + suffix + "/" + moduleName.slice(prefix.length)
+  const moduleFileId = path.join(suffix, moduleName.slice(prefix.length))
   const dir = path.dirname(fileId);
-  const rel = path.relative(dir, absModuleName);
+  const rel = path.relative(dir, moduleFileId);
   const decorate = (name: string) => {
-    const resolved = prefix + path.relative(prjRoot + "/" + suffix, prjRoot + "/" + path.relative(prjRoot, dir) + "/" + name);
+    const resolved = prefix + path.relative(suffix, path.normalize(path.join(dir, name)));
     return /\/\.\.\//.test(resolved) ? name : resolved;
   };
   return {
@@ -56,19 +56,15 @@ export function shouldBeReplaced({
 }) : ShouldBeReplacedResult {
   let decorate = (name: string) => name;
   if (opt.rootImport && opt.rootImport.length) {
-    if (!opt.prjRoot) {
-      throw new Error("Set prjRoot if using rootImport");
-    } else {
-      const result = opt.rootImport.reduce((acc, conf) => {
-        return { ...replaceRootImport(targetModuleName, targetFileId, opt.prjRoot || "", conf) };
-      }, { moduleName: targetModuleName, decorateWithConfig: (name: string) => name });
-      targetModuleName = result.moduleName;
-      decorate = result.decorateWithConfig;
-    }
+    const result = opt.rootImport.reduce((acc, conf) => {
+      return { ...replaceRootImport(targetModuleName, targetFileId, conf) };
+    }, { moduleName: targetModuleName, decorateWithConfig: (name: string) => name });
+    targetModuleName = result.moduleName;
+    decorate = result.decorateWithConfig;
   }
   if (!/^\./.test(targetModuleName)) return { hit: false };
   const dir = path.dirname(targetFileId)
-  const filePrefix = path.resolve(dir, targetModuleName);
+  const filePrefix = path.normalize(path.join(dir, targetModuleName));
   const extensions = defaultExtensions;
   const foundMoudle = extensions.map(ext => filePrefix + "." + ext).find(fileId => fileId === movingFileId);
   if (!foundMoudle) return { hit: false };
