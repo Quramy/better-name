@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 
-import {
-  createProject,
-  rename,
-} from "./project";
+import { createProject } from "./project";
+import { rename } from "./rename";
 
 async function main() {
   const prj = createProject({

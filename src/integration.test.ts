@@ -1,4 +1,6 @@
-import { FileRef, DefaultProject, SourceWriter, SourceRemover, rename } from "./project";
+import { FileRef, SourceWriter, SourceRemover, } from "./types";
+import { DefaultProject } from "./project";
+import { rename } from "./rename";
 import * as path from "path";
 
 class FixtureWriter implements SourceWriter {
