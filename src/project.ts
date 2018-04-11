@@ -128,6 +128,7 @@ export class DefaultDocumentRef implements DocumentRef {
     const ref = new BabylonDocmentEntity({ fileRef: this._opt.fileRef});
     ref.reader = this._opt.reader;
     ref.writer = this._opt.writer;
+    ref.remover = this._opt.remover;
     this._ref = ref;
     return this._ref;
   }
@@ -156,7 +157,7 @@ export async function rename(prj: Project, fromPath: string, toPath: string) {
     return;
   }));
   if (!selfDoc) return prj;
-  selfDoc.move(to);
+  await selfDoc.move(to);
 }
 
 export class BabylonDocmentEntity implements DocumentEntity {
