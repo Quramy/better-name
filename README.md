@@ -1,4 +1,6 @@
-# better-name [![CircleCI](https://circleci.com/gh/Quramy/better-name.svg?style=svg)](https://circleci.com/gh/Quramy/better-name)
+# better-name
+[![CircleCI](https://circleci.com/gh/Quramy/better-name.svg?style=svg)](https://circleci.com/gh/Quramy/better-name)
+[![npm version](https://badge.fury.io/js/better-name.svg)](https://badge.fury.io/js/better-name)
 
 CLI tool to rename JavaScript(ES2015) module files.
 
