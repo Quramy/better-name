@@ -1,5 +1,6 @@
 import * as path from "path";
 import * as fs from "fs";
+import * as mkdirp from "mkdirp";
 import * as rimraf from "rimraf";
 import { FileRef, SourceReader, SourceWriter, SourceRemover } from "./project";
 
@@ -32,6 +33,7 @@ export class FileSourceReader implements SourceReader {
 export class FileSourceWriter implements SourceWriter {
   write(file: FileRef, source: string): Promise<void> {
     return new Promise((res, rej) => {
+      mkdirp.sync(file.path);
       fs.writeFile(file.path, source, "utf-8", (err) => {
         if (err) return rej(err);
         res();

@@ -26,6 +26,7 @@
     "@types/babylon": "^6.16.2",
     "@types/glob": "^5.0.35",
     "@types/jest": "^22.2.2",
+    "@types/mkdirp": "^0.5.2",
     "@types/node": "^9.6.2",
     "@types/rimraf": "^2.0.2",
     "@types/yargs": "^11.0.0",
@@ -38,6 +39,7 @@
     "babel-generator": "^6.26.1",
     "babel-traverse": "^6.26.0",
     "glob": "^7.1.2",
+    "mkdirp": "^0.5.1",
     "rimraf": "^2.6.2",
     "yargs": "^11.0.0"
   },

@@ -30,7 +30,7 @@ class TestProject extends DefaultProject {
   protected writer = new FixtureWriter();
   protected remover = new NoopRemover();
 
-  getResult() {
+  getSnapshot() {
     return this.writer.dump();
   }
 }
@@ -43,7 +43,8 @@ describe("Integration", () => {
       pattern: "src/**/*.js",
     });
     try {
-      await rename(prj, path.join(rootDir, "src/target.js"), path.join(rootDir, "src/dest.js"));
+      await rename(prj, path.join(rootDir, "src/core/target.js"), path.join(rootDir, "src/feat/dest.js"));
+      expect(prj.getSnapshot()).toMatchSnapshot();
       done();
     } catch (err) {
       done(err);
