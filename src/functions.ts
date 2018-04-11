@@ -40,6 +40,25 @@ export function replaceRootImport(moduleName: string, fileId: string, config: Ro
 
 export function shouldBeReplaced({
   targetFileId,
+  toFileId,
+  targetModuleName,
+} : {
+  targetFileId: string,
+  toFileId: string,
+  targetModuleName: string,
+}) : ShouldBeReplacedResult {
+  if (!/^\./.test(targetModuleName)) return { hit: false };
+  const fromDir = path.dirname(targetFileId), toDir = path.dirname(toFileId);
+  if (fromDir === toDir) return { hit: false };
+  const newModulePath = path.normalize(path.relative(toDir, path.join(fromDir, targetModuleName)));
+  return {
+    hit: true,
+    newModuleId: newModulePath.startsWith(".") ? newModulePath : "./" + newModulePath,
+  };
+}
+
+export function shouldBeReplacedWithModuleMove({
+  targetFileId,
   targetModuleName,
   movingFileId,
   toFileId,

@@ -1,4 +1,4 @@
-import { shouldBeReplaced, ShouldBeReplacedResult, replaceRootImport } from "./functions";
+import { shouldBeReplaced, shouldBeReplacedWithModuleMove, ShouldBeReplacedResult, replaceRootImport } from "./functions";
 import * as assert from "assert";
 
 describe("replaceRootImport", () => {
@@ -33,8 +33,41 @@ describe("replaceRootImport", () => {
 });
 
 describe("shouldBeReplaced", () => {
-  it("exactly equal", () => {
+  it("should not hit when the target module is in node_modules", () => {
     assert.deepEqual(shouldBeReplaced({
+      targetFileId: "fromDir/a",
+      toFileId: "toDir/a",
+      targetModuleName: "file",
+    }), {
+      hit: false,
+    } as ShouldBeReplacedResult)
+  });
+
+  it("should not hit when the from/to are in the same dir", () => {
+    assert.deepEqual(shouldBeReplaced({
+      targetFileId: "dir/from",
+      toFileId: "dir/to",
+      targetModuleName: "file",
+    }), {
+      hit: false,
+    } as ShouldBeReplacedResult)
+  });
+
+  it("should hit", () => {
+    assert.deepEqual(shouldBeReplaced({
+      targetFileId: "fromDir/a",
+      toFileId: "toDir/a",
+      targetModuleName: "./file",
+    }), {
+      hit: true,
+      newModuleId: "../fromDir/file",
+    } as ShouldBeReplacedResult)
+  });
+});
+
+describe("shouldBeReplacedWithModuleMove", () => {
+  it("exactly equal", () => {
+    assert.deepEqual(shouldBeReplacedWithModuleMove({
       targetFileId: "a/b/c/fuga.js",
       targetModuleName: "./hogehoge",
       movingFileId: "a/b/c/hogehoge.js",
@@ -46,7 +79,7 @@ describe("shouldBeReplaced", () => {
   });
 
   it("extension: JSON", () => {
-    assert.deepEqual(shouldBeReplaced({
+    assert.deepEqual(shouldBeReplacedWithModuleMove({
       targetFileId: "a/b/c/fuga.js",
       targetModuleName: "./hogehoge",
       movingFileId: "a/b/c/hogehoge.json",
@@ -58,7 +91,7 @@ describe("shouldBeReplaced", () => {
   });
 
   it("directory mismatch", () => {
-    assert.deepEqual(shouldBeReplaced({
+    assert.deepEqual(shouldBeReplacedWithModuleMove({
       targetFileId: "/a/b/c/fuga.js",
       targetModuleName: "./hogehoge",
       movingFileId: "/a/b/hogehoge.js",
@@ -67,7 +100,7 @@ describe("shouldBeReplaced", () => {
   });
 
   it("node_modules", () => {
-    assert.deepEqual(shouldBeReplaced({
+    assert.deepEqual(shouldBeReplacedWithModuleMove({
       targetFileId: "a/b/c/fuga.js",
       targetModuleName: "hogehoge",
       movingFileId: "a/b/c/hogehoge.js",
@@ -77,7 +110,7 @@ describe("shouldBeReplaced", () => {
 
   describe("options", () => {
     describe("rootImport", () => {
-      assert.deepEqual(shouldBeReplaced({
+      assert.deepEqual(shouldBeReplacedWithModuleMove({
         targetFileId: "src/feat-a/fuga.js",
         targetModuleName: "~/feat-b/hogehoge",
         movingFileId: "src/feat-b/hogehoge.js",

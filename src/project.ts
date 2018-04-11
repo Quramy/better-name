@@ -3,12 +3,12 @@ import { File as FileAst, ImportDeclaration, stringLiteral } from "babel-types";
 import traverse from "babel-traverse";
 import generate from "babel-generator";
 import * as glob from "glob";
-import { shouldBeReplaced } from "./functions";
+import { shouldBeReplaced, shouldBeReplacedWithModuleMove } from "./functions";
 
 import * as path from "path";
 import * as fs from "fs";
 
-import { DefaultFileRef, FileSourceReader, FileSourceWriter } from "./file-util";
+import { DefaultFileRef, FileSourceReader, FileSourceWriter, RimrafAdapter } from "./file-util";
 
 export type $DiffKey<T, U> = T extends U ? never : T;
 export type $Diff<T, U> = Pick<T, $DiffKey<keyof T, keyof U>>;
@@ -29,9 +29,10 @@ export interface DocumentEntity {
   readonly fileRef: FileRef;
   readonly isDirty: boolean;
   parse(): Promise<this>;
-  transform(opt: TransformOptions): this;
+  transformPreceding(to: string): this;
+  transformFollowing(opt: TransformOptions): this;
   flush(): Promise<this>;
-  move(newFile: FileRef): this;
+  move(newFile: FileRef): Promise<this>;
 }
 
 export interface FileRef {
@@ -47,10 +48,15 @@ export interface SourceWriter {
   write(file: FileRef, source: string): Promise<void>;
 }
 
+export interface SourceRemover {
+  delete(file: FileRef): Promise<void>;
+}
+
 export class DefaultProject implements Project {
   private _docRefList?: DocumentRef[];
   protected reader: SourceReader = new FileSourceReader();
   protected writer: SourceWriter = new FileSourceWriter();
+  protected remover: SourceRemover = new RimrafAdapter();
 
   constructor(
     private _config: AllProjectOptions,
@@ -74,6 +80,7 @@ export class DefaultProject implements Project {
             fileRef,
             reader: this.reader,
             writer: this.writer,
+            remover: this.remover,
           });
         }));
       });
@@ -106,6 +113,7 @@ export type DefaultDocumentRefCreateOptioons = {
   fileRef: FileRef,
   reader: SourceReader,
   writer: SourceWriter,
+  remover: SourceRemover,
 };
 
 export class DefaultDocumentRef implements DocumentRef {
@@ -137,37 +145,42 @@ export async function rename(prj: Project, fromPath: string, toPath: string) {
   const to = new DefaultFileRef(toPath, prj.getProjectDir());
   const selfDoc = docs.find(doc => doc.fileRef.id === from.id);
   const restDocs = docs.filter(doc => doc.fileRef.id !== from.id);
+  if (selfDoc) {
+    await selfDoc.parse();
+    selfDoc.transformPreceding(to.id);
+  }
   await Promise.all(restDocs.map(async doc => {
     await doc.parse();
-    doc.transform({ from: from.id, to: to.id });
+    doc.transformFollowing({ from: from.id, to: to.id });
     await doc.flush();
     return;
   }));
-  // TODO
   if (!selfDoc) return prj;
+  selfDoc.move(to);
 }
 
 export class BabylonDocmentEntity implements DocumentEntity {
-  
-  move(newFile: FileRef): this {
-    throw new Error("Method not implemented.");
-  }
+
+  private _fref: FileRef;
 
   private _dirty: boolean = true;
   private _rawSource?: string;
   private _file?: FileAst;
 
-  readonly fileRef: FileRef;
-
   reader!: SourceReader;
   writer!: SourceWriter;
+  remover!: SourceRemover;
 
   constructor ({
     fileRef,
   }: {
     fileRef: FileRef,
   }) {
-    this.fileRef = fileRef;
+    this._fref= fileRef;
+  }
+
+  get fileRef() {
+    return this._fref;
   }
 
   get isDirty() {
@@ -187,7 +200,7 @@ export class BabylonDocmentEntity implements DocumentEntity {
     }
   }
 
-  transform({ from, to } : TransformOptions): this {
+  transformPreceding(to: string) {
     if (!this._file) {
       throw new Error("Call parse");
     }
@@ -195,8 +208,38 @@ export class BabylonDocmentEntity implements DocumentEntity {
     let newModuleName: string;
     traverse(this._file, {
       ImportDeclaration: (path) => {
-        // if (/hogehoge/.test(path.node.source.value)) flag = true;
         const result = shouldBeReplaced({
+          targetModuleName: path.node.source.value,
+          targetFileId: this.fileRef.id,
+          toFileId: to,
+        });
+        if (result.hit) {
+          flag = true;
+          newModuleName = result.newModuleId;
+        }
+      },
+      exit(path) {
+        if (flag && path.isImportDeclaration()) flag = false;
+      },
+      StringLiteral: (path) => {
+        if (flag && newModuleName) {
+          path.replaceWith(stringLiteral(newModuleName));
+          flag = false;
+        }
+      },
+    });
+    return this;
+  }
+
+  transformFollowing({ from, to } : TransformOptions): this {
+    if (!this._file) {
+      throw new Error("Call parse");
+    }
+    let flag = false;
+    let newModuleName: string;
+    traverse(this._file, {
+      ImportDeclaration: (path) => {
+        const result = shouldBeReplacedWithModuleMove({
           targetFileId: this.fileRef.id,
           targetModuleName: path.node.source.value,
           movingFileId: from,
@@ -225,6 +268,18 @@ export class BabylonDocmentEntity implements DocumentEntity {
       throw new Error("Cannot flush because the source or AST is not set.");
     }
     await this.writer.write(this.fileRef, generate(this._file, {}, this._rawSource).code);
+    return this;
+  }
+  
+  async move(newFile: FileRef) {
+    if (this._fref.path === newFile.path) {
+      return this;
+    }
+    if (this.remover) {
+      await this.remover.delete(this._fref);
+    }
+    this._fref = newFile;
+    await this.flush();
     return this;
   }
 

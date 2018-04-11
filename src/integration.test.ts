@@ -1,4 +1,4 @@
-import { FileRef, DefaultProject, SourceWriter, rename } from "./project";
+import { FileRef, DefaultProject, SourceWriter, SourceRemover, rename } from "./project";
 import * as path from "path";
 
 class FixtureWriter implements SourceWriter {
@@ -20,8 +20,15 @@ ${this.contentsMap.get(k)}`;
   }
 }
 
+class NoopRemover implements SourceRemover {
+  delete() {
+    return Promise.resolve();
+  }
+}
+
 class TestProject extends DefaultProject {
   protected writer = new FixtureWriter();
+  protected remover = new NoopRemover();
 
   getResult() {
     return this.writer.dump();
@@ -35,8 +42,11 @@ describe("Integration", () => {
       rootDir,
       pattern: "src/**/*.js",
     });
-    await rename(prj, path.join(rootDir, "src/target.js"), path.join(rootDir, "src/dest.js"));
-    console.log(prj.getResult());
-    done();
+    try {
+      await rename(prj, path.join(rootDir, "src/target.js"), path.join(rootDir, "src/dest.js"));
+      done();
+    } catch (err) {
+      done(err);
+    }
   });
 });

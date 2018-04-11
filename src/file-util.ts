@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
-import { FileRef, SourceReader, SourceWriter } from "./project";
+import * as rimraf from "rimraf";
+import { FileRef, SourceReader, SourceWriter, SourceRemover } from "./project";
 
 function toFileId(filePath: string) {
   return filePath.replace(/\\/g, "/");
@@ -35,6 +36,17 @@ export class FileSourceWriter implements SourceWriter {
         if (err) return rej(err);
         res();
       });
+    });
+  }
+}
+
+export class RimrafAdapter implements SourceRemover {
+  delete(file: FileRef): Promise<void>{
+    return new Promise((res, rej) => {
+      rimraf(file.path, (err) => {
+        if (err) return rej(err);
+        res();
+      })
     });
   }
 }
