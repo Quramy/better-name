@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {
   createProject,
   rename,

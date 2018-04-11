@@ -1,9 +1,12 @@
 {
   "name": "better-name",
-  "version": "1.0.0",
-  "description": "CLI tool to rename JavaScript(ES2015) modules",
-  "main": "index.js",
+  "version": "0.1.0",
+  "description": "CLI to rename ES2015 module files",
+  "bin": {
+    "better-name": "lib/cli.js"
+  },
   "scripts": {
+    "clean": "rimraf lib",
     "compile": "tsc",
     "test": "jest"
   },
