@@ -33,7 +33,7 @@ export class FileSourceReader implements SourceReader {
 export class FileSourceWriter implements SourceWriter {
   write(file: FileRef, source: string): Promise<void> {
     return new Promise((res, rej) => {
-      mkdirp.sync(file.path);
+      mkdirp.sync(path.dirname(file.path));
       fs.writeFile(file.path, source, "utf-8", (err) => {
         if (err) return rej(err);
         res();
