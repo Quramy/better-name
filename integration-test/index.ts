@@ -51,6 +51,18 @@ describe("integration test", () => {
     }
   });
 
+  it("simple_babel_prj(keep filename)", async done => {
+    const rootDir = path.join(__dirname, "test-fixtures/simple_babel_prj");
+    const prj = await createProject<TestProject>(TestProject, { rootDir, pattern: "src/**/*.js" });
+    try {
+      await rename(prj, path.join(rootDir, "src/core/target.js"), path.join(rootDir, "src/feat"));
+      expect(prj.getSnapshot()).toMatchSnapshot();
+      done();
+    } catch (err) {
+      done(err);
+    }
+  });
+
   it("babel_root_import_prj", async done => {
     const rootDir = path.join(__dirname, "test-fixtures/babel_root_import_prj");
     const prj = await createProject<TestProject>(TestProject, {

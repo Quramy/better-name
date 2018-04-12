@@ -40,3 +40,29 @@ export function someFn() {
   return 'test';
 }"
 `;
+
+exports[`integration test simple_babel_prj(keep filename) 1`] = `
+"
+// id: src/core/dependee.js
+
+export function util() {
+  console.log('this is util func');
+}
+
+// id: src/core/index.js
+
+import { someFn } from '../feat/target';
+
+export default function main() {
+  someFn();
+}
+
+// id: src/feat/target.js
+
+import { util } from '../core/dependee';
+
+export function someFn() {
+  util();
+  return 'test';
+}"
+`;
