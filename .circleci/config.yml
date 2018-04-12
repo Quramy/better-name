@@ -33,6 +33,7 @@ jobs:
     working_directory: ~/repo
 
     steps:
+      - checkout
       - add-ssh-keys:
           fingerprints:
             - "df:31:8b:ec:f7:c1:90:cf:7a:0c:17:a4:e4:86:05:c5"
@@ -66,6 +67,7 @@ jobs:
     working_directory: ~/repo
 
     steps:
+      - checkout
       - add-ssh-keys:
           fingerprints:
             - "df:31:8b:ec:f7:c1:90:cf:7a:0c:17:a4:e4:86:05:c5"
