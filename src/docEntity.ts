@@ -1,4 +1,4 @@
-import { File as FileAst, ImportDeclaration, stringLiteral } from "babel-types";
+import { File as FileAst, ImportDeclaration, stringLiteral, StringLiteral } from "babel-types";
 import { parse } from "babylon";
 import traverse from "babel-traverse";
 import generate from "babel-generator";
@@ -16,6 +16,7 @@ import {
 import {
   shouldBeReplaced,
   shouldBeReplacedWithModuleMove,
+  ShouldBeReplacedResult,
 } from "./functions";
 
 export class BabylonDocmentEntity implements DocumentEntity {
@@ -64,19 +65,15 @@ export class BabylonDocmentEntity implements DocumentEntity {
     }
   }
 
-  transformPreceding(to: string) {
+  private _transformImports(matcher: (sourceNode: StringLiteral) => ShouldBeReplacedResult) {
     if (!this._file) {
-      throw new Error("Call parse");
+      throw new Error("Don't call traverse before parsing AST. Call parse().");
     }
     let flag = false;
     let newModuleName: string;
     traverse(this._file, {
       ImportDeclaration: (path) => {
-        const result = shouldBeReplaced({
-          targetModuleName: path.node.source.value,
-          targetFileId: this.fileRef.id,
-          toFileId: to,
-        });
+        const result = matcher(path.node.source);
         if (result.hit) {
           flag = true;
           newModuleName = result.newModuleId;
@@ -95,37 +92,22 @@ export class BabylonDocmentEntity implements DocumentEntity {
     return this;
   }
 
+  transformPreceding(to: string) {
+    return this._transformImports(s => shouldBeReplaced({
+      targetModuleName: s.value,
+      targetFileId: this.fileRef.id,
+      toFileId: to,
+    }));
+  }
+
   transformFollowing({ from, to } : TransformOptions): this {
-    if (!this._file) {
-      throw new Error("Call parse");
-    }
-    let flag = false;
-    let newModuleName: string;
-    traverse(this._file, {
-      ImportDeclaration: (path) => {
-        const result = shouldBeReplacedWithModuleMove({
-          targetFileId: this.fileRef.id,
-          targetModuleName: path.node.source.value,
-          movingFileId: from,
-          toFileId: to,
-          opt: this.fileMappingOptions,
-        });
-        if (result.hit) {
-          flag = true;
-          newModuleName = result.newModuleId;
-        }
-      },
-      exit(path) {
-        if (flag && path.isImportDeclaration()) flag = false;
-      },
-      StringLiteral: (path) => {
-        if (flag && newModuleName) {
-          path.replaceWith(stringLiteral(newModuleName));
-          flag = false;
-        }
-      },
-    });
-    return this;
+    return this._transformImports(s => shouldBeReplacedWithModuleMove({
+      targetFileId: this.fileRef.id,
+      targetModuleName: s.value,
+      movingFileId: from,
+      toFileId: to,
+      opt: this.fileMappingOptions,
+    }));
   }
 
   async flush() {

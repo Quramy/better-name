@@ -90,6 +90,18 @@ describe("shouldBeReplacedWithModuleMove", () => {
     } as ShouldBeReplacedResult);
   });
 
+  it("extension: explicit load", () => {
+    assert.deepEqual(shouldBeReplacedWithModuleMove({
+      targetFileId: "a/b/c/fuga.js",
+      targetModuleName: "./hogehoge.json",
+      movingFileId: "a/b/c/hogehoge.json",
+      toFileId: "a/b/c/newhoge.json",
+    }), {
+      hit: true,
+      newModuleId: "./newhoge.json",
+    } as ShouldBeReplacedResult);
+  });
+
   it("directory mismatch", () => {
     assert.deepEqual(shouldBeReplacedWithModuleMove({
       targetFileId: "/a/b/c/fuga.js",

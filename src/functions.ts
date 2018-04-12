@@ -80,7 +80,12 @@ export function shouldBeReplacedWithModuleMove({
   const dir = path.dirname(targetFileId)
   const filePrefix = path.normalize(path.join(dir, targetModuleName));
   const extensions = defaultExtensions;
-  const foundMoudle = extensions.map(ext => filePrefix + "." + ext).find(fileId => fileId === movingFileId);
+  let foundMoudle: string | undefined;
+  if (path.extname(filePrefix) === "") {
+    foundMoudle = extensions.map(ext => filePrefix + "." + ext).find(fileId => fileId === movingFileId);
+  } else if(filePrefix === movingFileId) {
+    foundMoudle = filePrefix;
+  }
   if (!foundMoudle) return { hit: false };
   const newModulePath = path.parse(path.relative(dir, toFileId));
   const suffix = extensions.some(ext => "." + ext === newModulePath.ext) ? newModulePath.name : newModulePath.base;
