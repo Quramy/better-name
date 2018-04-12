@@ -1,6 +1,6 @@
-import { FileRef, SourceWriter, SourceRemover, } from "./types";
-import { DefaultProject } from "./project";
-import { rename } from "./rename";
+import { FileRef, SourceWriter, SourceRemover, } from "../src/types";
+import { DefaultProject } from "../src/project";
+import { rename } from "../src/rename";
 import * as path from "path";
 
 class FixtureWriter implements SourceWriter {
@@ -37,7 +37,7 @@ class TestProject extends DefaultProject {
   }
 }
 
-describe("Integration", () => {
+describe("integration test", () => {
   it("simple_babel_prj", async done => {
     const rootDir = path.join(__dirname, "../test-fixtures/simple_babel_prj");
     const prj = new TestProject({

@@ -1,3 +1,4 @@
 src/
 test-fixtures/
+built/
 lib/**/*.test.*

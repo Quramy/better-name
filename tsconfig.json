@@ -4,8 +4,9 @@
     "module": "commonjs",
     "declaration": true,
     "sourceMap": true,
-    "outDir": "lib",
-    "rootDir": "src",
+    "outDir": "built",
+    "rootDir": ".",
     "strict": true
-  }
+  },
+  "exclude": ["node_modules", "built"]
 }
