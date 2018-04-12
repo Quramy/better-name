@@ -26,3 +26,90 @@ jobs:
         
       - run: yarn test --coverage
       - run: cat coverage/lcov.info | yarn run coveralls
+
+  deploy_patch:
+    docker:
+      - image: node:8
+    working_directory: ~/repo
+
+    steps:
+      - add-ssh-keys:
+          fingerprints:
+            - "df:31:8b:ec:f7:c1:90:cf:7a:0c:17:a4:e4:86:05:c5"
+      - run:
+          name: Setup git
+          command: |
+            git config --global user.email "yosuke.kurami@gmail.com"
+            git config --global user.name "Quramy"
+      - restore_cache:
+          keys:
+            - npm-cache-{{ checksum "yarn.lock" }}
+            - npm-cache
+      - run: yarn install --frozen-lockfile
+      - run:
+          name: Login npm
+          command: |
+            echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+      - run:
+          name: Bump version
+          command: |
+            npm version patch -m "bump version"
+            git push origin master --tags
+      - run:
+          name: Publish
+          command: |
+            npm publish
+
+  deploy_minor:
+    docker:
+      - image: node:8
+    working_directory: ~/repo
+
+    steps:
+      - add-ssh-keys:
+          fingerprints:
+            - "df:31:8b:ec:f7:c1:90:cf:7a:0c:17:a4:e4:86:05:c5"
+      - run:
+          name: Setup git
+          command: |
+            git config --global user.email "yosuke.kurami@gmail.com"
+            git config --global user.name "Quramy"
+      - restore_cache:
+          keys:
+            - npm-cache-{{ checksum "yarn.lock" }}
+            - npm-cache
+      - run: yarn install --frozen-lockfile
+      - run:
+          name: Login npm
+          command: |
+            echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
+      - run:
+          name: Bump version
+          command: |
+            npm version patch -m "bump version"
+            git push origin master --tags
+      - run:
+          name: Publish
+          command: |
+            npm publish
+
+workflows:
+  version: 2
+  build_pipeline:
+    jobs:
+      - build
+      - confirm_patch:
+          type: approval
+          requires:
+            - build
+      - confirm_minor:
+          type: approval
+          requires:
+            - build
+      - deploy_patch:
+          requires:
+            - confirm_patch
+      - deploy_minor:
+          requires:
+            - confirm_minor
+
