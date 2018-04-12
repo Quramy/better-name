@@ -5,7 +5,7 @@ import {
   FileMappingOptions,
 } from "./types";
 
-const defaultExtensions = ["js", "json", "jsx"];
+const defaultExtensions = ["js", "mjs", "jsx"];
 
 export type ShouldBeReplacedResult = {
   hit: false,

@@ -78,12 +78,12 @@ describe("shouldBeReplacedWithModuleMove", () => {
     } as ShouldBeReplacedResult);
   });
 
-  it("extension: JSON", () => {
+  it("extension: JSX", () => {
     assert.deepEqual(shouldBeReplacedWithModuleMove({
       targetFileId: "a/b/c/fuga.js",
       targetModuleName: "./hogehoge",
-      movingFileId: "a/b/c/hogehoge.json",
-      toFileId: "a/b/c/newhoge.json",
+      movingFileId: "a/b/c/hogehoge.jsx",
+      toFileId: "a/b/c/newhoge.jsx",
     }), {
       hit: true,
       newModuleId: "./newhoge",
