@@ -52,3 +52,17 @@ export class RimrafAdapter implements SourceRemover {
     });
   }
 }
+
+export function exists(r: string, fid: string) {
+  return fs.existsSync(path.join(r, fid));
+}
+
+export async function readFile(r: string, fid: string) {
+  const reader = new FileSourceReader();
+  return await reader.read({ id: fid, path: path.join(r, fid) });
+}
+
+export async function readFileAsJson(r: string, fid: string) {
+  const contents = await readFile(r, fid);
+  return JSON.parse(contents) as any;
+}

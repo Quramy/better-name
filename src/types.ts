@@ -6,6 +6,7 @@ export type $PartialOptional<T, U> = $Diff<T, U> & $Optional<U>
 export interface Project {
   getProjectDir(): string;
   getDocumentsList(): Promise<DocumentRef[]>;
+  getFileMappingOptions(): FileMappingOptions;
 }
 
 export interface DocumentRef {
@@ -43,4 +44,15 @@ export interface SourceWriter {
 
 export interface SourceRemover {
   delete(file: FileRef): Promise<void>;
+}
+
+
+
+export type RootImportConfig = {
+  rootPathSuffix?: string;
+  rootPathPrefix?: string;
+};
+
+export type FileMappingOptions = {
+  rootImport?: RootImportConfig[];
 }

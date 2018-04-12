@@ -10,6 +10,7 @@ import {
   SourceRemover,
   DocumentEntity,
   TransformOptions,
+  FileMappingOptions,
 } from "./types";
 
 import {
@@ -29,12 +30,17 @@ export class BabylonDocmentEntity implements DocumentEntity {
   writer!: SourceWriter;
   remover!: SourceRemover;
 
+  readonly fileMappingOptions: FileMappingOptions;
+
   constructor ({
     fileRef,
+    fileMappingOptions = { },
   }: {
     fileRef: FileRef,
+    fileMappingOptions?: FileMappingOptions,
   }) {
     this._fref= fileRef;
+    this.fileMappingOptions = fileMappingOptions;
   }
 
   get fileRef() {
@@ -102,6 +108,7 @@ export class BabylonDocmentEntity implements DocumentEntity {
           targetModuleName: path.node.source.value,
           movingFileId: from,
           toFileId: to,
+          opt: this.fileMappingOptions,
         });
         if (result.hit) {
           flag = true;

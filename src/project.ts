@@ -11,11 +11,16 @@ import {
   SourceReader,
   SourceWriter,
   SourceRemover,
+  FileMappingOptions,
 } from "./types";
 
 import { DefaultFileRef, FileSourceReader, FileSourceWriter, RimrafAdapter } from "./file-util";
 import { shouldBeReplaced, shouldBeReplacedWithModuleMove } from "./functions";
 import { BabylonDocmentEntity } from "./docEntity";
+
+import {
+  readRootImportConfig,
+} from "./config-reader";
 
 export class DefaultProject implements Project {
   private _docRefList?: DocumentRef[];
@@ -32,6 +37,10 @@ export class DefaultProject implements Project {
     return this._config.rootDir;
   }
 
+  getFileMappingOptions() {
+    return this._config.fileMapping;
+  }
+
   getDocumentsList() {
     if (this._docRefList) {
       return Promise.resolve(this._docRefList);
@@ -46,6 +55,7 @@ export class DefaultProject implements Project {
             reader: this.reader,
             writer: this.writer,
             remover: this.remover,
+            fileMappingOptions: this._config.fileMapping,
           });
         }));
       });
@@ -56,17 +66,31 @@ export class DefaultProject implements Project {
 export type AllProjectOptions = {
   rootDir: string;
   pattern: string;
+  fileMapping: FileMappingOptions;
 };
 
 export const defaultProjectConfig = {
   pattern: "src/**/*.js",
+  fileMapping: { },
 }
 
 export type ProjectOptions = $PartialOptional<AllProjectOptions, typeof defaultProjectConfig>;
 
-export function createProject(configuration: ProjectOptions) {
+export async function createProject<X extends DefaultProject>(k: typeof DefaultProject, configuration: ProjectOptions) {
+  const { rootDir } = configuration;
+  const rootImport = await readRootImportConfig(rootDir);
   const conf = { ...defaultProjectConfig, ...configuration }
-  return new DefaultProject(conf);
+  conf.fileMapping = {
+    rootImport: rootImport,
+  };
+  const prj = new k({ 
+    ...conf,
+  }) as X;
+  return prj;
+}
+
+export function createDefaultProject(configuration: ProjectOptions) {
+  return createProject<DefaultProject>(DefaultProject, configuration);
 }
 
 export type DefaultDocumentRefCreateOptioons = {
@@ -74,6 +98,7 @@ export type DefaultDocumentRefCreateOptioons = {
   reader: SourceReader,
   writer: SourceWriter,
   remover: SourceRemover,
+  fileMappingOptions: FileMappingOptions,
 };
 
 export class DefaultDocumentRef implements DocumentRef {
@@ -85,10 +110,16 @@ export class DefaultDocumentRef implements DocumentRef {
 
   getRef() {
     if (this._ref) return this._ref;
-    const ref = new BabylonDocmentEntity({ fileRef: this._opt.fileRef});
-    ref.reader = this._opt.reader;
-    ref.writer = this._opt.writer;
-    ref.remover = this._opt.remover;
+    const {
+      reader,
+      writer,
+      remover,
+      ...rest
+    } = this._opt;
+    const ref = new BabylonDocmentEntity({ ...rest });
+    ref.reader = reader;
+    ref.writer = writer;
+    ref.remover = remover;
     this._ref = ref;
     return this._ref;
   }

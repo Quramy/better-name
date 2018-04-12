@@ -1,5 +1,5 @@
 import { FileRef, SourceWriter, SourceRemover, } from "../src/types";
-import { DefaultProject } from "../src/project";
+import { DefaultProject, createProject, AllProjectOptions } from "../src/project";
 import { rename } from "../src/rename";
 import * as path from "path";
 
@@ -38,14 +38,27 @@ class TestProject extends DefaultProject {
 }
 
 describe("integration test", () => {
+
   it("simple_babel_prj", async done => {
-    const rootDir = path.join(__dirname, "../test-fixtures/simple_babel_prj");
-    const prj = new TestProject({
-      rootDir,
-      pattern: "src/**/*.js",
-    });
+    const rootDir = path.join(__dirname, "test-fixtures/simple_babel_prj");
+    const prj = await createProject<TestProject>(TestProject, { rootDir, pattern: "src/**/*.js" });
     try {
       await rename(prj, path.join(rootDir, "src/core/target.js"), path.join(rootDir, "src/feat/dest.js"));
+      expect(prj.getSnapshot()).toMatchSnapshot();
+      done();
+    } catch (err) {
+      done(err);
+    }
+  });
+
+  it("babel_root_import_prj", async done => {
+    const rootDir = path.join(__dirname, "test-fixtures/babel_root_import_prj");
+    const prj = await createProject<TestProject>(TestProject, {
+      rootDir, pattern: "src/**/*.js",
+    });
+    expect(prj.getFileMappingOptions().rootImport).toBeTruthy();
+    try {
+      await rename(prj, path.join(rootDir, "src/common/util.js"), path.join(rootDir, "src/feat-b/util.js"));
       expect(prj.getSnapshot()).toMatchSnapshot();
       done();
     } catch (err) {

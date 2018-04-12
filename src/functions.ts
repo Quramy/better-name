@@ -1,6 +1,9 @@
-
 import * as fs from "fs";
 import { posix as path } from "path";
+import {
+  RootImportConfig,
+  FileMappingOptions,
+} from "./types";
 
 const defaultExtensions = ["js", "json", "jsx"];
 
@@ -9,11 +12,6 @@ export type ShouldBeReplacedResult = {
 } | {
   hit: true,
   newModuleId: string,
-};
-
-export type RootImportConfig = {
-  rootPathSuffix?: string;
-  rootPathPrefix?: string;
 };
 
 export function replaceRootImport(moduleName: string, fileId: string, config: RootImportConfig) {
@@ -68,10 +66,7 @@ export function shouldBeReplacedWithModuleMove({
   targetModuleName: string,
   movingFileId: string,
   toFileId: string,
-  opt?: {
-    prjRoot?: string,
-    rootImport?: RootImportConfig[],
-  },
+  opt?: FileMappingOptions,
 }) : ShouldBeReplacedResult {
   let decorate = (name: string) => name;
   if (opt.rootImport && opt.rootImport.length) {

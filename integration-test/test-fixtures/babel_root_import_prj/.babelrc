@@ -1,0 +1,24 @@
+{
+  "presets": [
+    [
+      "env",
+      {
+        "targets": {
+          "node": 8
+        }
+      }
+    ],
+    "react"
+  ],
+  "ignore": [
+    "node_modules",
+    "flow-typed"
+  ],
+  "plugins": [
+    [
+      "babel-root-import", [
+        { "rootPathSuffix": "src" }
+      ]
+    ]
+  ]
+}

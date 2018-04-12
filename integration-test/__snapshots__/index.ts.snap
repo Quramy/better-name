@@ -1,3 +1,42 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`integration test simple_babel_prj 1`] = `""`;
+exports[`integration test babel_root_import_prj 1`] = `
+"
+// id: src/feat-a/index.js
+
+import { awesome } from '~/feat-b/util';
+
+awesome();
+
+// id: src/feat-b/util.js
+
+export function awesome() {
+  return 'awesome!';
+}"
+`;
+
+exports[`integration test simple_babel_prj 1`] = `
+"
+// id: src/core/dependee.js
+
+export function util() {
+  console.log('this is util func');
+}
+
+// id: src/core/index.js
+
+import { someFn } from '../feat/dest';
+
+export default function main() {
+  someFn();
+}
+
+// id: src/feat/dest.js
+
+import { util } from '../core/dependee';
+
+export function someFn() {
+  util();
+  return 'test';
+}"
+`;
