@@ -41,7 +41,7 @@ describe("integration test", () => {
 
   it("simple_babel_prj", async done => {
     const rootDir = path.join(__dirname, "test-fixtures/simple_babel_prj");
-    const prj = await createProject<TestProject>(TestProject, { rootDir, pattern: "src/**/*.js" });
+    const prj = await createProject<TestProject>(TestProject, { rootDir });
     try {
       await rename(prj, path.join(rootDir, "src/core/target.js"), path.join(rootDir, "src/feat/dest.js"));
       expect(prj.getSnapshot()).toMatchSnapshot();
@@ -53,7 +53,7 @@ describe("integration test", () => {
 
   it("simple_babel_prj(keep filename)", async done => {
     const rootDir = path.join(__dirname, "test-fixtures/simple_babel_prj");
-    const prj = await createProject<TestProject>(TestProject, { rootDir, pattern: "src/**/*.js" });
+    const prj = await createProject<TestProject>(TestProject, { rootDir });
     try {
       await rename(prj, path.join(rootDir, "src/core/target.js"), path.join(rootDir, "src/feat"));
       expect(prj.getSnapshot()).toMatchSnapshot();
@@ -65,9 +65,7 @@ describe("integration test", () => {
 
   it("babel_root_import_prj", async done => {
     const rootDir = path.join(__dirname, "test-fixtures/babel_root_import_prj");
-    const prj = await createProject<TestProject>(TestProject, {
-      rootDir, pattern: "src/**/*.js",
-    });
+    const prj = await createProject<TestProject>(TestProject, { rootDir });
     expect(prj.getFileMappingOptions().rootImport).toBeTruthy();
     try {
       await rename(prj, path.join(rootDir, "src/common/util.js"), path.join(rootDir, "src/feat-b/util.js"));

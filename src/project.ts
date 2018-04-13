@@ -1,6 +1,10 @@
-import * as glob from "glob";
 import * as path from "path";
 import * as fs from "fs";
+import { IOptions } from "glob";
+
+// FIXME
+type GlobAllFn = (patterns: string[], opt: IOptions, cb: (err: any, files: string[]) => void) => void
+const globAll = require("glob-all") as GlobAllFn;
 
 import {
   $PartialOptional,
@@ -46,7 +50,7 @@ export class DefaultProject implements Project {
       return Promise.resolve(this._docRefList);
     }
     return new Promise<DocumentRef[]>((resolve, reject) => {
-      glob(this._config.pattern, { cwd: this._config.rootDir }, (err, files) => {
+      globAll(this._config.patterns, { cwd: this._config.rootDir }, (err, files) => {
         if (err) return reject(err);
         resolve(files.map(f => {
           const fileRef = new DefaultFileRef(f, this._config.rootDir);
@@ -65,12 +69,12 @@ export class DefaultProject implements Project {
 
 export type AllProjectOptions = {
   rootDir: string;
-  pattern: string;
+  patterns: string[];
   fileMapping: FileMappingOptions;
 };
 
 export const defaultProjectConfig = {
-  pattern: "src/**/*.js",
+  patterns: ["src/**/*.{js,mjs,jsx}", "!node_modules/**/*"],
   fileMapping: { },
 }
 

@@ -8,5 +8,5 @@
     "rootDir": ".",
     "strict": true
   },
-  "exclude": ["node_modules", "built"]
+  "exclude": ["node_modules", "built" ]
 }
