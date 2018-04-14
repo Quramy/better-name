@@ -18,6 +18,7 @@ import {
   SourceWriter,
   SourceRemover,
   FileMappingOptions,
+  FindQuery,
 } from "./types";
 
 import { DefaultFileRef, FileSourceReader, FileSourceWriter, RimrafAdapter } from "./file-util";
@@ -26,6 +27,7 @@ import { BabylonDocumentEntity, DefaultDocumentEntity } from "./docEntity";
 
 import {
   readRootImportConfig,
+  readProjectConfig,
 } from "./config-reader";
 
 export class DefaultProject implements Project {
@@ -81,6 +83,20 @@ export class DefaultProject implements Project {
     });
     return { found, rest };
   }
+
+  async find(query: FindQuery) {
+    const docs = await this.getDocumentsList();
+    const found = [] as DocumentRef[];
+    const rest = [] as DocumentRef[];
+    docs.forEach(d => {
+      if (query.start && d.getFile().id.startsWith(query.start)) {
+        found.push(d);
+      } else {
+        rest.push(d);
+      }
+    });
+    return { found, rest };
+  }
 }
 
 export type AllProjectOptions = {
@@ -99,7 +115,8 @@ export type ProjectOptions = $PartialOptional<AllProjectOptions, typeof defaultP
 export async function createProject<X extends DefaultProject>(k: typeof DefaultProject, configuration: ProjectOptions) {
   const { rootDir } = configuration;
   const rootImport = await readRootImportConfig(rootDir);
-  const conf = { ...defaultProjectConfig, ...configuration }
+  const readConf = await readProjectConfig(rootDir);
+  const conf = { ...defaultProjectConfig,  ...readConf, ...configuration }
   conf.fileMapping = {
     rootImport: rootImport,
   };

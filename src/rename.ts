@@ -12,8 +12,8 @@ function createToPath(from: string, to: string) {
 }
 
 export async function rename(prj: Project, fromPath: string, toPath: string) {
-  const from = new DefaultFileRef(fromPath, prj.getProjectDir());
   const to = new DefaultFileRef(createToPath(fromPath, toPath), prj.getProjectDir());
+  const from = new DefaultFileRef(fromPath, prj.getProjectDir());
   const { found, rest } = await prj.findOne(from.id);
   if (found) {
     await found.getDoc().parse();

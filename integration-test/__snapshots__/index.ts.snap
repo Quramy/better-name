@@ -17,12 +17,31 @@ export function awesome() {
 
 exports[`integration test css_modules_prj 1`] = `
 "
+// id: src/app.jsx
+
+import React from 'react';
+import { render } from 'react-dom';
+import Hoge from 'components/Fuga/Fuga';
+
+render(<Hoge />, document.getElementById('app'));
+
 // id: src/components/Fuga/Fuga.css
 
 .root {
   color: red;
 }
 
+
+// id: src/components/Fuga/Fuga.jsx
+
+import styles from '../Hoge/Hoge.css';
+import cx from 'classnames';
+
+const Hoge = () => <div className={cx.root}>
+    This is Hoge component
+  </div>;
+
+export default Hoge;
 
 // id: src/components/Hoge/Hoge.jsx
 

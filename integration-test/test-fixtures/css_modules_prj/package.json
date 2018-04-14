@@ -9,5 +9,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "betterName": {
+    "patterns": [
+      "src/**/*.{js,jsx,css}"
+    ]
+  }
 }

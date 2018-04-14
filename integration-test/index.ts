@@ -78,9 +78,10 @@ describe("integration test", () => {
 
   it("css_modules_prj", async done => {
     const rootDir = path.join(__dirname, "test-fixtures/css_modules_prj");
-    const prj = await createProject<TestProject>(TestProject, { rootDir, patterns: ["src/**/*.{js,jsx,css}"]});
+    const prj = await createProject<TestProject>(TestProject, { rootDir });
     try {
-      await rename(prj, path.join(rootDir, "src/components/Hoge/Hoge.css"), path.join(rootDir, "src/components/Fuga/Fuga.css"));
+      await rename(prj, "src/components/Hoge/Hoge.css", "src/components/Fuga/Fuga.css");
+      await rename(prj, "src/components/Hoge/Hoge.jsx", "src/components/Fuga/Fuga.jsx");
       expect(prj.getSnapshot()).toMatchSnapshot();
       done();
     } catch (err) {
