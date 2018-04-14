@@ -1,6 +1,6 @@
 import { FileRef, SourceReader, SourceWriter } from "./types";
 import { createProject } from "./project";
-import { BabylonDocmentEntity } from "./docEntity";
+import { BabylonDocumentEntity } from "./docEntity";
 import * as assert from "assert";
 
 class TestSourceIO implements SourceReader, SourceWriter {
@@ -28,7 +28,7 @@ describe("DocumentEntity", () => {
   describe("#transformPreceding", () => {
     it("should not replace source in the same dir move", async done => {
       const io = new TestSourceIO(`import HogeHoge from './hogehoge';`)
-      const docEntity = new BabylonDocmentEntity({ fileRef: new DummyFile("fromFile") });
+      const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("fromFile") });
       docEntity.reader = docEntity.writer = io;
       await docEntity.parse();
       docEntity.transformPreceding("toFile");
@@ -39,7 +39,7 @@ describe("DocumentEntity", () => {
 
     it("should replace source", async done => {
       const io = new TestSourceIO(`import HogeHoge from './hogehoge';`)
-      const docEntity = new BabylonDocmentEntity({ fileRef: new DummyFile("fromDir/file") });
+      const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("fromDir/file") });
       docEntity.reader = docEntity.writer = io;
       await docEntity.parse();
       docEntity.transformPreceding("toDir/file");
@@ -52,7 +52,7 @@ describe("DocumentEntity", () => {
   describe("#transformFollowing", () => {
     it("should replace source", async done => {
       const io = new TestSourceIO(`import HogeHoge from './hogehoge';`)
-      const docEntity = new BabylonDocmentEntity({ fileRef: new DummyFile("test") });
+      const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("test") });
       docEntity.reader = docEntity.writer = io;
       await docEntity.parse();
       docEntity.transformFollowing({ from: 'hogehoge.js', to: 'fuga.js' });

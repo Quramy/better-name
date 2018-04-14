@@ -19,7 +19,7 @@ import {
   ShouldBeReplacedResult,
 } from "./functions";
 
-export class BabylonDocmentEntity implements DocumentEntity {
+export class BabylonDocumentEntity implements DocumentEntity {
 
   private _fref: FileRef;
 

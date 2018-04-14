@@ -21,7 +21,7 @@ import {
 
 import { DefaultFileRef, FileSourceReader, FileSourceWriter, RimrafAdapter } from "./file-util";
 import { shouldBeReplaced, shouldBeReplacedWithModuleMove } from "./functions";
-import { BabylonDocmentEntity } from "./docEntity";
+import { BabylonDocumentEntity } from "./docEntity";
 
 import {
   readRootImportConfig,
@@ -142,7 +142,7 @@ export class DefaultDocumentRef implements DocumentRef {
       remover,
       ...rest
     } = this._opt;
-    const ref = new BabylonDocmentEntity({ ...rest });
+    const ref = new BabylonDocumentEntity({ ...rest });
     ref.reader = reader;
     ref.writer = writer;
     ref.remover = remover;
