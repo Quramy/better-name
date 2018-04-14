@@ -10,6 +10,7 @@ import {
   $PartialOptional,
   Project,
   DocumentRef,
+  DocumentEntityCreateOptions,
   DocumentEntity,
   FileId,
   FileRef,
@@ -21,7 +22,7 @@ import {
 
 import { DefaultFileRef, FileSourceReader, FileSourceWriter, RimrafAdapter } from "./file-util";
 import { shouldBeReplaced, shouldBeReplacedWithModuleMove } from "./functions";
-import { BabylonDocumentEntity } from "./docEntity";
+import { BabylonDocumentEntity, DefaultDocumentEntity } from "./docEntity";
 
 import {
   readRootImportConfig,
@@ -120,6 +121,18 @@ export type DefaultDocumentRefCreateOptioons = {
   fileMappingOptions: FileMappingOptions,
 };
 
+function createEntity(opt: DocumentEntityCreateOptions) {
+  const ext = path.extname(opt.fileRef.id);
+  switch (ext) {
+    case ".js":
+    case ".mjs":
+    case ".jsx":
+      return new BabylonDocumentEntity(opt);
+    default:
+      return new DefaultDocumentEntity(opt);
+  }
+}
+
 export class DefaultDocumentRef implements DocumentRef {
 
   private _file: FileRef;
@@ -142,10 +155,9 @@ export class DefaultDocumentRef implements DocumentRef {
       remover,
       ...rest
     } = this._opt;
-    const ref = new BabylonDocumentEntity({ ...rest });
+    const ref = createEntity({ ...rest });
     ref.reader = reader;
     ref.writer = writer;
-    ref.remover = remover;
     this._doc = ref;
     return this._doc;
   }
@@ -158,7 +170,7 @@ export class DefaultDocumentRef implements DocumentRef {
     await this._opt.remover.delete(this._file);
     await this.getDoc().move(to);
     this._file = to;
-    await this.getDoc().flush();
+    await this.getDoc().flush(true);
     return this;
   }
 }

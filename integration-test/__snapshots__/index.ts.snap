@@ -15,6 +15,27 @@ export function awesome() {
 }"
 `;
 
+exports[`integration test css_modules_prj 1`] = `
+"
+// id: src/components/Fuga/Fuga.css
+
+.root {
+  color: red;
+}
+
+
+// id: src/components/Hoge/Hoge.jsx
+
+import styles from '../Fuga/Fuga.css';
+import cx from 'classnames';
+
+const Hoge = () => <div className={cx.root}>
+    This is Hoge component
+  </div>;
+
+export default Hoge;"
+`;
+
 exports[`integration test simple_babel_prj 1`] = `
 "
 // id: src/core/index.js

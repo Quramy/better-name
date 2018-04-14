@@ -10,11 +10,16 @@ export interface FileRef {
   readonly path: string;
 }
 
-export interface Project {
-  getProjectDir(): string;
-  getFileMappingOptions(): FileMappingOptions;
-  getDocumentsList(): Promise<DocumentRef[]>;
-  findOne(fileId: FileId): Promise<{ found: DocumentRef | undefined, rest: DocumentRef[] }>;
+export interface SourceReader {
+  read(file: FileRef): Promise<string>;
+}
+
+export interface SourceWriter {
+  write(file: FileRef, source: string): Promise<void>;
+}
+
+export interface SourceRemover {
+  delete(file: FileRef): Promise<void>;
 }
 
 export interface DocumentRef {
@@ -29,26 +34,21 @@ export interface TransformOptions {
   to: string;
 }
 
+export interface DocumentEntityCreateOptions {
+  fileRef: FileRef,
+  fileMappingOptions?: FileMappingOptions,
+}
+
 export interface DocumentEntity {
   readonly fileRef: FileRef;
   readonly isDirty: boolean;
+  reader: SourceReader;
+  writer: SourceWriter;
   parse(): Promise<this>;
   transformPreceding(to: string): this;
   transformFollowing(opt: TransformOptions): this;
-  flush(): Promise<this>;
+  flush(force?: boolean): Promise<this>;
   move(newFile: FileRef): Promise<this>;
-}
-
-export interface SourceReader {
-  read(file: FileRef): Promise<string>;
-}
-
-export interface SourceWriter {
-  write(file: FileRef, source: string): Promise<void>;
-}
-
-export interface SourceRemover {
-  delete(file: FileRef): Promise<void>;
 }
 
 export type RootImportConfig = {
@@ -58,4 +58,11 @@ export type RootImportConfig = {
 
 export type FileMappingOptions = {
   rootImport?: RootImportConfig[];
+}
+
+export interface Project {
+  getProjectDir(): string;
+  getFileMappingOptions(): FileMappingOptions;
+  getDocumentsList(): Promise<DocumentRef[]>;
+  findOne(fileId: FileId): Promise<{ found: DocumentRef | undefined, rest: DocumentRef[] }>;
 }

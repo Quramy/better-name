@@ -19,6 +19,57 @@ import {
   ShouldBeReplacedResult,
 } from "./functions";
 
+export class DefaultDocumentEntity implements DocumentEntity {
+  private _fref: FileRef;
+  private _code?: string;
+
+  reader!: SourceReader;
+  writer!: SourceWriter;
+
+  constructor ({
+    fileRef,
+    fileMappingOptions = { },
+  }: {
+    fileRef: FileRef,
+    fileMappingOptions?: FileMappingOptions,
+  }) {
+    this._fref= fileRef;
+  }
+
+  get fileRef() {
+    return this._fref;
+  }
+
+  get isDirty() {
+    return false;
+  }
+
+  async parse() {
+    this._code = await this.reader.read(this.fileRef);
+    return this;
+  }
+
+  transformPreceding(to: string): this {
+    return this;
+  }
+
+  transformFollowing(opt: TransformOptions): this {
+    return this;
+  }
+
+  async flush(force = false) {
+    if (force) {
+      await this.writer.write(this.fileRef, this._code || "");
+    }
+    return this;
+  }
+
+  async move(newFile: FileRef) {
+    this._fref = newFile;
+    return this;
+  }
+}
+
 export class BabylonDocumentEntity implements DocumentEntity {
 
   private _fref: FileRef;
@@ -30,7 +81,6 @@ export class BabylonDocumentEntity implements DocumentEntity {
 
   reader!: SourceReader;
   writer!: SourceWriter;
-  remover!: SourceRemover;
 
   readonly fileMappingOptions: FileMappingOptions;
 
@@ -58,9 +108,15 @@ export class BabylonDocumentEntity implements DocumentEntity {
       return this;
     } else {
       this._rawSource = await this.reader.read(this.fileRef);
-      this._file = parse(this._rawSource, {
-        sourceType: "module",
-      });
+      try {
+        this._file = parse(this._rawSource, {
+          sourceType: "module",
+          plugins: ["jsx", "flow"],
+        });
+      } catch (e) {
+        console.error(this.fileRef.path, e);
+        throw e;
+      }
       this._dirty = false;
       return this;
     }
@@ -112,26 +168,21 @@ export class BabylonDocumentEntity implements DocumentEntity {
     }));
   }
 
-  async flush() {
+  async flush(force: boolean = false) {
     if (!this._file || !this._rawSource) {
       throw new Error("Cannot flush because the source or AST is not set.");
     }
-    if (!this._touched) return this;
+    if (!this._touched && !force) return this;
     await this.writer.write(this.fileRef, generate(this._file, {}, this._rawSource).code);
     this._touched = false;
     return this;
   }
   
   async move(newFile: FileRef) {
-    this._touched = true;
     if (this._fref.path === newFile.path) {
       return this;
     }
-    if (this.remover) {
-      await this.remover.delete(this._fref);
-    }
     this._fref = newFile;
-    await this.flush();
     return this;
   }
 
