@@ -17,12 +17,6 @@ export function awesome() {
 
 exports[`integration test simple_babel_prj 1`] = `
 "
-// id: src/core/dependee.js
-
-export function util() {
-  console.log('this is util func');
-}
-
 // id: src/core/index.js
 
 import { someFn } from '../feat/dest';
@@ -43,12 +37,6 @@ export function someFn() {
 
 exports[`integration test simple_babel_prj(keep filename) 1`] = `
 "
-// id: src/core/dependee.js
-
-export function util() {
-  console.log('this is util func');
-}
-
 // id: src/core/index.js
 
 import { someFn } from '../feat/target';

@@ -12,24 +12,22 @@ function createToPath(from: string, to: string) {
 }
 
 export async function rename(prj: Project, fromPath: string, toPath: string) {
-  const docRefs = await prj.getDocumentsList();
-  const docs = docRefs.map(ref => ref.getRef());
   const from = new DefaultFileRef(fromPath, prj.getProjectDir());
   const to = new DefaultFileRef(createToPath(fromPath, toPath), prj.getProjectDir());
-  const selfDoc = docs.find(doc => doc.fileRef.id === from.id);
-  const restDocs = docs.filter(doc => doc.fileRef.id !== from.id);
-  if (selfDoc) {
-    await selfDoc.parse();
-    selfDoc.transformPreceding(to.id);
+  const { found, rest } = await prj.findOne(from.id);
+  if (found) {
+    await found.getDoc().parse();
+    found.getDoc().transformPreceding(to.id);
   }
-  await Promise.all(restDocs.map(async doc => {
+  await Promise.all(rest.map(async docRef => {
+    const doc = docRef.getDoc();
     await doc.parse();
     doc.transformFollowing({ from: from.id, to: to.id });
     await doc.flush();
     return;
   }));
-  if (!selfDoc) return prj;
-  await selfDoc.move(to);
+  if (!found) return prj;
+  await found.move(to);
   return prj;
 }
 

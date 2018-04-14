@@ -23,6 +23,7 @@ export class BabylonDocmentEntity implements DocumentEntity {
 
   private _fref: FileRef;
 
+  private _touched: boolean = false;
   private _dirty: boolean = true;
   private _rawSource?: string;
   private _file?: FileAst;
@@ -85,6 +86,7 @@ export class BabylonDocmentEntity implements DocumentEntity {
       StringLiteral: (path) => {
         if (flag && newModuleName) {
           path.replaceWith(stringLiteral(newModuleName));
+          this._touched = true;
           flag = false;
         }
       },
@@ -114,11 +116,14 @@ export class BabylonDocmentEntity implements DocumentEntity {
     if (!this._file || !this._rawSource) {
       throw new Error("Cannot flush because the source or AST is not set.");
     }
+    if (!this._touched) return this;
     await this.writer.write(this.fileRef, generate(this._file, {}, this._rawSource).code);
+    this._touched = false;
     return this;
   }
   
   async move(newFile: FileRef) {
+    this._touched = true;
     if (this._fref.path === newFile.path) {
       return this;
     }

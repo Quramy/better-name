@@ -3,15 +3,25 @@ export type $Diff<T, U> = Pick<T, $DiffKey<keyof T, keyof U>>;
 export type $Optional<T> = { [P in keyof T]?: T[P] };
 export type $PartialOptional<T, U> = $Diff<T, U> & $Optional<U>
 
+export type FileId = string;
+
+export interface FileRef {
+  readonly id: FileId;
+  readonly path: string;
+}
+
 export interface Project {
   getProjectDir(): string;
-  getDocumentsList(): Promise<DocumentRef[]>;
   getFileMappingOptions(): FileMappingOptions;
+  getDocumentsList(): Promise<DocumentRef[]>;
+  findOne(fileId: FileId): Promise<{ found: DocumentRef | undefined, rest: DocumentRef[] }>;
 }
 
 export interface DocumentRef {
-  getRef(): DocumentEntity;
+  getFile(): FileRef;
+  getDoc(): DocumentEntity;
   detach(): void;
+  move(newFile: FileRef): Promise<this>;
 }
 
 export interface TransformOptions {
@@ -29,11 +39,6 @@ export interface DocumentEntity {
   move(newFile: FileRef): Promise<this>;
 }
 
-export interface FileRef {
-  readonly id: string;
-  readonly path: string;
-}
-
 export interface SourceReader {
   read(file: FileRef): Promise<string>;
 }
@@ -45,8 +50,6 @@ export interface SourceWriter {
 export interface SourceRemover {
   delete(file: FileRef): Promise<void>;
 }
-
-
 
 export type RootImportConfig = {
   rootPathSuffix?: string;

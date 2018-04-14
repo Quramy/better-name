@@ -11,6 +11,7 @@ import {
   Project,
   DocumentRef,
   DocumentEntity,
+  FileId,
   FileRef,
   SourceReader,
   SourceWriter,
@@ -65,6 +66,20 @@ export class DefaultProject implements Project {
       });
     });
   }
+
+  async findOne(fileId: FileId) {
+    const docs = await this.getDocumentsList();
+    let found: DocumentRef | undefined = undefined;
+    const rest: DocumentRef[] = [];
+    docs.forEach(d => {
+      if (d.getFile().id === fileId) {
+        found = d;
+      } else {
+        rest.push(d);
+      }
+    });
+    return { found, rest };
+  }
 }
 
 export type AllProjectOptions = {
@@ -107,13 +122,20 @@ export type DefaultDocumentRefCreateOptioons = {
 
 export class DefaultDocumentRef implements DocumentRef {
 
+  private _file: FileRef;
+
   constructor(private _opt: DefaultDocumentRefCreateOptioons) {
+    this._file = _opt.fileRef;
   }
 
-  private _ref?: DocumentEntity | null;
+  private _doc?: DocumentEntity | null;
 
-  getRef() {
-    if (this._ref) return this._ref;
+  getFile() {
+    return this._file;
+  }
+
+  getDoc() {
+    if (this._doc) return this._doc;
     const {
       reader,
       writer,
@@ -124,12 +146,19 @@ export class DefaultDocumentRef implements DocumentRef {
     ref.reader = reader;
     ref.writer = writer;
     ref.remover = remover;
-    this._ref = ref;
-    return this._ref;
+    this._doc = ref;
+    return this._doc;
   }
 
   detach(): void {
-    this._ref = null;
+    this._doc = null;
   }
 
+  async move(to:FileRef) {
+    await this._opt.remover.delete(this._file);
+    await this.getDoc().move(to);
+    this._file = to;
+    await this.getDoc().flush();
+    return this;
+  }
 }
