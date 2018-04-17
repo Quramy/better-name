@@ -105,10 +105,16 @@ workflows:
       - build
       - confirm_patch:
           type: approval
+          filters:
+            branches:
+              only: master
           requires:
             - build
       - confirm_minor:
           type: approval
+          filters:
+            branches:
+              only: master
           requires:
             - build
       - deploy_patch:
