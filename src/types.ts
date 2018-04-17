@@ -71,3 +71,12 @@ export interface Project {
   findOne(fileId: FileId): Promise<{ found: DocumentRef | undefined, rest: DocumentRef[] }>;
   find(query: FindQuery): Promise<{ found: DocumentRef[], rest: DocumentRef[] }>;
 }
+
+export type LogLevel = "verbose" | "info" | "silent";
+
+export interface Logger {
+  info(msg: string): this;
+  warn(msg: string): this;
+  error(msg: string | Error): this;
+  verbose(msg: string, ...objects: any[]): this;
+}
