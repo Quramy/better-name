@@ -173,7 +173,8 @@ export class BabylonDocumentEntity implements DocumentEntity {
     if (!this._file || !this._rawSource) {
       throw new Error("Cannot flush because the source or AST is not set.");
     }
-    await this.writer.write(this.fileRef, generate(this._file, {}, this._rawSource).code);
+    const newSrc = generate(this._file, {}, this._rawSource).code;
+    await this.writer.write(this.fileRef, newSrc);
     this._touched = false;
     return this;
   }

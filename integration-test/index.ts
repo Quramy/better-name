@@ -3,11 +3,16 @@ import { DefaultProject, createProject, AllProjectOptions } from "../src/project
 import { rename } from "../src/rename";
 import * as path from "path";
 
-class FixtureWriter implements SourceWriter {
+class FixtureIo implements SourceWriter, SourceRemover {
   contentsMap = new Map<string, string>();
 
   write(file: FileRef, source: string): Promise<void> {
     this.contentsMap.set(file.id, source);
+    return Promise.resolve();
+  }
+
+  delete(file: FileRef) {
+    this.contentsMap.delete(file.id);
     return Promise.resolve();
   }
 
@@ -22,18 +27,19 @@ ${this.contentsMap.get(k)}`;
   }
 }
 
-class NoopRemover implements SourceRemover {
-  delete() {
-    return Promise.resolve();
-  }
-}
-
 class TestProject extends DefaultProject {
-  protected writer = new FixtureWriter();
-  protected remover = new NoopRemover();
+  io: FixtureIo;
+
+  constructor(args: any) {
+    super(args);
+    const fixtureIo = new FixtureIo();
+    this.io = fixtureIo;
+    this.writer = fixtureIo;
+    this.remover = fixtureIo;
+  }
 
   getSnapshot() {
-    return this.writer.dump();
+    return this.io.dump();
   }
 }
 
@@ -80,8 +86,7 @@ describe("integration test", () => {
     const rootDir = path.join(__dirname, "test-fixtures/css_modules_prj");
     const prj = await createProject<TestProject>(TestProject, { rootDir });
     try {
-      await rename(prj, "src/components/Hoge/Hoge.css", "src/components/Fuga/Fuga.css");
-      await rename(prj, "src/components/Hoge/Hoge.jsx", "src/components/Fuga/Fuga.jsx");
+      await rename(prj, "src/components/Hoge", "src/components/Fuga");
       expect(prj.getSnapshot()).toMatchSnapshot();
       done();
     } catch (err) {

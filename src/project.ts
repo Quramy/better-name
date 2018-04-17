@@ -56,7 +56,7 @@ export class DefaultProject implements Project {
     return new Promise<DocumentRef[]>((resolve, reject) => {
       globAll(this._config.patterns, { cwd: this._config.rootDir }, (err, files) => {
         if (err) return reject(err);
-        resolve(files.map(f => {
+        const refs = files.map(f => {
           const fileRef = new DefaultFileRef(f, this._config.rootDir);
           return new DefaultDocumentRef({
             fileRef,
@@ -65,7 +65,9 @@ export class DefaultProject implements Project {
             remover: this.remover,
             fileMappingOptions: this._config.fileMapping,
           });
-        }));
+        });
+        this._docRefList = refs;
+        resolve(refs);
       });
     });
   }
