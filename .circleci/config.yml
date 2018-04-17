@@ -105,14 +105,14 @@ workflows:
       - build
       - confirm_patch:
           type: approval
-          fileters:
+          filters:
             branches:
               only: master
           requires:
             - build
       - confirm_minor:
           type: approval
-          fileters:
+          filters:
             branches:
               only: master
           requires:
