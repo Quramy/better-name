@@ -112,7 +112,20 @@ export class BabylonDocumentEntity implements DocumentEntity {
       try {
         this._file = parse(this._rawSource, {
           sourceType: "module",
-          plugins: ["jsx", "flow"],
+          plugins: [
+            "jsx",
+            "flow",
+            "classConstructorCall",
+            "classProperties",
+            "asyncGenerators",
+            "decorators",
+            "doExpressions",
+            "dynamicImport",
+            "exportExtensions",
+            "functionBind",
+            "functionSent",
+            "objectRestSpread",
+          ],
         });
       } catch (e) {
         console.error(this.fileRef.path, e);
