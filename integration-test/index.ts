@@ -1,14 +1,23 @@
 import { FileRef, SourceWriter, SourceRemover, } from "../src/types";
 import { DefaultProject, createProject, AllProjectOptions } from "../src/project";
+import { FileSourceReader } from "../src/file-util";
 import { rename } from "../src/rename";
 import * as path from "path";
 
-class FixtureIo implements SourceWriter, SourceRemover {
+class FixtureIo extends FileSourceReader implements SourceWriter, SourceRemover {
   contentsMap = new Map<string, string>();
 
   write(file: FileRef, source: string): Promise<void> {
     this.contentsMap.set(file.id, source);
     return Promise.resolve();
+  }
+
+  read(file: FileRef) {
+    if (this.contentsMap.has(file.id)) {
+      return Promise.resolve(this.contentsMap.get(file.id) as string);
+    } else {
+      return super.read(file);
+    }
   }
 
   delete(file: FileRef) {
@@ -34,6 +43,7 @@ class TestProject extends DefaultProject {
     super(args);
     const fixtureIo = new FixtureIo();
     this.io = fixtureIo;
+    this.reader = fixtureIo;
     this.writer = fixtureIo;
     this.remover = fixtureIo;
   }
