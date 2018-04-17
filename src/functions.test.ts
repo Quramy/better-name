@@ -120,6 +120,18 @@ describe("shouldBeReplacedWithModuleMove", () => {
     }), { hit: false } as ShouldBeReplacedResult);
   });
 
+  it("should treat 'index.js' correctly", () => {
+    assert.deepEqual(shouldBeReplacedWithModuleMove({
+      targetFileId: "a/b/c/fuga.js",
+      targetModuleName: "./hogehoge",
+      movingFileId: "a/b/c/hogehoge/index.js",
+      toFileId: "a/b/c/newhoge.js",
+    }), {
+      hit: true,
+      newModuleId: "./newhoge",
+    } as ShouldBeReplacedResult);
+  });
+
   describe("options", () => {
     describe("rootImport", () => {
       assert.deepEqual(shouldBeReplacedWithModuleMove({

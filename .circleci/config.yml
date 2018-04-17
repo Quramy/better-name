@@ -25,6 +25,9 @@ jobs:
           key: v1-dependencies-{{ checksum "yarn.lock" }}
         
       - run: yarn test --coverage
+      - run: cp -rf coverage/lcov-report /tmp/coverage-report
+      - store_artifacts:
+          path: /tmp/coverage-report
       - run: cat coverage/lcov.info | yarn run coveralls
 
   deploy_patch:
