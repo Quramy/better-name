@@ -5,7 +5,7 @@ import {
   FileMappingOptions,
 } from "./types";
 
-const defaultExtensions = ["js", "mjs", "jsx"];
+const defaultExtensions = [".js", ".mjs", ".jsx"];
 
 export type ShouldBeReplacedResult = {
   hit: false,
@@ -82,13 +82,13 @@ export function shouldBeReplacedWithModuleMove({
   const extensions = defaultExtensions;
   let foundMoudle: string | undefined;
   if (path.extname(filePrefix) === "") {
-    foundMoudle = extensions.map(ext => filePrefix + "." + ext).find(fileId => fileId === movingFileId);
+    foundMoudle = [...extensions, ...extensions.map(ext => "/index" + ext)].map(ext => filePrefix + ext).find(fileId => fileId === movingFileId);
   } else if(filePrefix === movingFileId) {
     foundMoudle = filePrefix;
   }
   if (!foundMoudle) return { hit: false };
   const newModulePath = path.parse(path.relative(dir, toFileId));
-  const suffix = extensions.some(ext => "." + ext === newModulePath.ext) ? newModulePath.name : newModulePath.base;
+  const suffix = extensions.some(ext => ext === newModulePath.ext) ? newModulePath.name : newModulePath.base;
   const prefix = newModulePath.dir === "" ? "." : newModulePath.dir;
   return {
     hit: true,
