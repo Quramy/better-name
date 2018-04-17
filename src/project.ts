@@ -18,6 +18,7 @@ import {
   SourceWriter,
   SourceRemover,
   FileMappingOptions,
+  FindQuery,
 } from "./types";
 
 import { DefaultFileRef, FileSourceReader, FileSourceWriter, RimrafAdapter } from "./file-util";
@@ -26,6 +27,7 @@ import { BabylonDocumentEntity, DefaultDocumentEntity } from "./docEntity";
 
 import {
   readRootImportConfig,
+  readProjectConfig,
 } from "./config-reader";
 
 export class DefaultProject implements Project {
@@ -54,7 +56,7 @@ export class DefaultProject implements Project {
     return new Promise<DocumentRef[]>((resolve, reject) => {
       globAll(this._config.patterns, { cwd: this._config.rootDir }, (err, files) => {
         if (err) return reject(err);
-        resolve(files.map(f => {
+        const refs = files.map(f => {
           const fileRef = new DefaultFileRef(f, this._config.rootDir);
           return new DefaultDocumentRef({
             fileRef,
@@ -63,7 +65,9 @@ export class DefaultProject implements Project {
             remover: this.remover,
             fileMappingOptions: this._config.fileMapping,
           });
-        }));
+        });
+        this._docRefList = refs;
+        resolve(refs);
       });
     });
   }
@@ -75,6 +79,20 @@ export class DefaultProject implements Project {
     docs.forEach(d => {
       if (d.getFile().id === fileId) {
         found = d;
+      } else {
+        rest.push(d);
+      }
+    });
+    return { found, rest };
+  }
+
+  async find(query: FindQuery) {
+    const docs = await this.getDocumentsList();
+    const found = [] as DocumentRef[];
+    const rest = [] as DocumentRef[];
+    docs.forEach(d => {
+      if (query.start && d.getFile().id.startsWith(query.start)) {
+        found.push(d);
       } else {
         rest.push(d);
       }
@@ -99,7 +117,8 @@ export type ProjectOptions = $PartialOptional<AllProjectOptions, typeof defaultP
 export async function createProject<X extends DefaultProject>(k: typeof DefaultProject, configuration: ProjectOptions) {
   const { rootDir } = configuration;
   const rootImport = await readRootImportConfig(rootDir);
-  const conf = { ...defaultProjectConfig, ...configuration }
+  const readConf = await readProjectConfig(rootDir);
+  const conf = { ...defaultProjectConfig,  ...readConf, ...configuration }
   conf.fileMapping = {
     rootImport: rootImport,
   };

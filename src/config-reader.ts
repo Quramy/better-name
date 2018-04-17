@@ -11,6 +11,20 @@ import {
   readFileAsJson,
 } from "./file-util";
 
+export async function readProjectConfig(rootDir: string): Promise<{ patterns?: string[] }> {
+  try {
+    if (exists(rootDir, "package.json")) {
+      const pkg = await readFileAsJson(rootDir, "package.json");
+      if (pkg["betterName"]) {
+        return pkg["betterName"];
+      }
+    }
+    return { };
+  } catch(err) {
+    return { };
+  }
+}
+
 export type BabelrcType = {
   plugins?: (
     {

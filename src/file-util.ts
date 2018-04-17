@@ -4,7 +4,7 @@ import * as mkdirp from "mkdirp";
 import * as rimraf from "rimraf";
 import { FileRef, SourceReader, SourceWriter, SourceRemover } from "./types";
 
-function toFileId(filePath: string) {
+export function toFileId(filePath: string) {
   return filePath.replace(/\\/g, "/");
 }
 

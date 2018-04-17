@@ -60,9 +60,14 @@ export type FileMappingOptions = {
   rootImport?: RootImportConfig[];
 }
 
+export type FindQuery = {
+  start: string;
+};
+
 export interface Project {
   getProjectDir(): string;
   getFileMappingOptions(): FileMappingOptions;
   getDocumentsList(): Promise<DocumentRef[]>;
   findOne(fileId: FileId): Promise<{ found: DocumentRef | undefined, rest: DocumentRef[] }>;
+  find(query: FindQuery): Promise<{ found: DocumentRef[], rest: DocumentRef[] }>;
 }

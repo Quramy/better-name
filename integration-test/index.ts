@@ -1,13 +1,27 @@
 import { FileRef, SourceWriter, SourceRemover, } from "../src/types";
 import { DefaultProject, createProject, AllProjectOptions } from "../src/project";
+import { FileSourceReader } from "../src/file-util";
 import { rename } from "../src/rename";
 import * as path from "path";
 
-class FixtureWriter implements SourceWriter {
+class FixtureIo extends FileSourceReader implements SourceWriter, SourceRemover {
   contentsMap = new Map<string, string>();
 
   write(file: FileRef, source: string): Promise<void> {
     this.contentsMap.set(file.id, source);
+    return Promise.resolve();
+  }
+
+  read(file: FileRef) {
+    if (this.contentsMap.has(file.id)) {
+      return Promise.resolve(this.contentsMap.get(file.id) as string);
+    } else {
+      return super.read(file);
+    }
+  }
+
+  delete(file: FileRef) {
+    this.contentsMap.delete(file.id);
     return Promise.resolve();
   }
 
@@ -22,18 +36,20 @@ ${this.contentsMap.get(k)}`;
   }
 }
 
-class NoopRemover implements SourceRemover {
-  delete() {
-    return Promise.resolve();
-  }
-}
-
 class TestProject extends DefaultProject {
-  protected writer = new FixtureWriter();
-  protected remover = new NoopRemover();
+  io: FixtureIo;
+
+  constructor(args: any) {
+    super(args);
+    const fixtureIo = new FixtureIo();
+    this.io = fixtureIo;
+    this.reader = fixtureIo;
+    this.writer = fixtureIo;
+    this.remover = fixtureIo;
+  }
 
   getSnapshot() {
-    return this.writer.dump();
+    return this.io.dump();
   }
 }
 
@@ -78,9 +94,9 @@ describe("integration test", () => {
 
   it("css_modules_prj", async done => {
     const rootDir = path.join(__dirname, "test-fixtures/css_modules_prj");
-    const prj = await createProject<TestProject>(TestProject, { rootDir, patterns: ["src/**/*.{js,jsx,css}"]});
+    const prj = await createProject<TestProject>(TestProject, { rootDir });
     try {
-      await rename(prj, path.join(rootDir, "src/components/Hoge/Hoge.css"), path.join(rootDir, "src/components/Fuga/Fuga.css"));
+      await rename(prj, "src/components/Hoge", "src/components/Fuga");
       expect(prj.getSnapshot()).toMatchSnapshot();
       done();
     } catch (err) {

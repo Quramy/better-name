@@ -60,5 +60,20 @@ describe("DocumentEntity", () => {
       assert.equal(io.source, `import HogeHoge from './fuga';`);
       done();
     });
+
+    it("should replace source twitce", async done => {
+      const io = new TestSourceIO("import HogeHoge from './hogehoge';" + "\n" + "import Piyo from './piyopiyo';")
+      const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("test") });
+      docEntity.reader = docEntity.writer = io;
+      await docEntity.parse();
+      docEntity.transformFollowing({ from: 'hogehoge.js', to: 'fuga.js' });
+      await docEntity.flush();
+      await docEntity.parse();
+      docEntity.transformFollowing({ from: 'piyopiyo.js', to: 'bar.js' });
+      await docEntity.flush();
+      assert.equal(io.source, "import HogeHoge from './fuga';" + "\n" + "import Piyo from './bar';");
+      done();
+    });
+
   });
 });
