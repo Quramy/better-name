@@ -2,6 +2,7 @@ import { File as FileAst, ImportDeclaration, stringLiteral, StringLiteral } from
 import { parse } from "babylon";
 import traverse from "babel-traverse";
 import generate from "babel-generator";
+import { getLogger } from "./logger";
 
 import {
   FileRef,
@@ -175,6 +176,7 @@ export class BabylonDocumentEntity implements DocumentEntity {
     }
     const newSrc = generate(this._file, {}, this._rawSource).code;
     await this.writer.write(this.fileRef, newSrc);
+    getLogger().info(`write contents to "${this.fileRef.id}".`);
     this._touched = false;
     return this;
   }
