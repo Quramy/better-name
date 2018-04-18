@@ -145,6 +145,4 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-          requires:
-            - build
 
