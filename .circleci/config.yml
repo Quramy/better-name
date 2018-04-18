@@ -59,10 +59,6 @@ jobs:
           command: |
             npm version patch -m "bump version"
             git push origin master --tags
-      - run:
-          name: Publish
-          command: |
-            npm publish
 
   deploy_minor:
     docker:
@@ -93,6 +89,22 @@ jobs:
           command: |
             npm version minor -m "bump version"
             git push origin master --tags
+
+  deploy:
+    docker:
+      - image: node:8
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - npm-cache-{{ checksum "yarn.lock" }}
+            - npm-cache
+      - run: yarn install --frozen-lockfile
+      - run:
+          name: Login npm
+          command: |
+            echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
       - run:
           name: Publish
           command: |
@@ -127,4 +139,10 @@ workflows:
       - deploy_minor:
           requires:
             - confirm_minor
+      - deploy:
+          requires:
+            - build
+          fixtures:
+            tags:
+              only: /^v.*/
 
