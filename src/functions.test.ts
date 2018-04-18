@@ -158,18 +158,38 @@ describe("shouldBeReplacedWithModuleMove", () => {
 
   describe("options", () => {
     describe("rootImport", () => {
-      assert.deepEqual(shouldBeReplacedWithModuleMove({
-        targetFileId: "src/feat-a/fuga.js",
-        targetModuleName: "~/feat-b/hogehoge",
-        movingFileId: "src/feat-b/hogehoge.js",
-        toFileId: "src/feat-b/newHoge.js",
-        opt: {
-          rootImport: [{ rootPathSuffix: "src" }],
-        },
-      }), {
-        hit: true,
-        newModuleId: "~/feat-b/newHoge",
-      } as ShouldBeReplacedResult);
+      it("should replace correctly", () => {
+        assert.deepEqual(shouldBeReplacedWithModuleMove({
+          targetFileId: "src/feat-a/fuga.js",
+          targetModuleName: "~/feat-b/hogehoge",
+          movingFileId: "src/feat-b/hogehoge.js",
+          toFileId: "src/feat-b/newHoge.js",
+          opt: {
+            rootImport: [{ rootPathSuffix: "src" }],
+          },
+        }), {
+          hit: true,
+          newModuleId: "~/feat-b/newHoge",
+        } as ShouldBeReplacedResult);
+      });
+
+      it("should replace with complex conf", () => {
+        assert.deepEqual(shouldBeReplacedWithModuleMove({
+          targetFileId: "some-package/src/page/containers/index.jsx",
+          targetModuleName: "~/ui/components/Button",
+          movingFileId: "common/src/ui/components/Button/index.js",
+          toFileId: "common/src/ui/components/AwesomeButton/index.js",
+          opt: {
+            rootImport: [
+              { "rootPathSuffix": "common/src" },
+              { "rootPathPrefix": "#", "rootPathSuffix": "common" },
+            ]
+          },
+        }), {
+          hit: true,
+          newModuleId: "~/ui/components/AwesomeButton",
+        } as ShouldBeReplacedResult);
+      });
     });
   });
 });

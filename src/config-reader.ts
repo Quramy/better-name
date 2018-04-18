@@ -11,6 +11,8 @@ import {
   readFileAsJson,
 } from "./file-util";
 
+import { getLogger } from "./logger";
+
 export async function readProjectConfig(rootDir: string): Promise<{ patterns?: string[] }> {
   try {
     if (exists(rootDir, "package.json")) {
@@ -44,6 +46,7 @@ export function extractRootImportConfigFromBabelrc(babelrc: BabelrcType): RootIm
     if (typeof p === "string") return;
     if (p[0] !== "babel-root-import") return;
     conf = p[1];
+    getLogger().verbose("load babel-root-import config from .babelrc");
   })
   return conf;
 }
@@ -54,6 +57,7 @@ export async function readRootImportConfig(rootDir: string) {
     if (exists(rootDir, "package.json")) {
       const pkg = await readFileAsJson(rootDir, "package.json");
       if (pkg["rootImport"]) {
+        getLogger().verbose("load babel-root-import config from package.json");
         return pkg["rootImport"] as RootImportConfig[];
       }
     }

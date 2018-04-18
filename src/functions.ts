@@ -71,7 +71,8 @@ export function shouldBeReplacedWithModuleMove({
   let decorate = (name: string) => name;
   if (opt.rootImport && opt.rootImport.length) {
     const result = opt.rootImport.reduce((acc, conf) => {
-      return { ...replaceRootImport(targetModuleName, targetFileId, conf) };
+      const tmp = replaceRootImport(acc.moduleName, targetFileId, conf);
+      return { moduleName: tmp.moduleName, decorateWithConfig: (name: string) => tmp.decorateWithConfig(acc.decorateWithConfig(name)) };
     }, { moduleName: targetModuleName, decorateWithConfig: (name: string) => name });
     targetModuleName = result.moduleName;
     decorate = result.decorateWithConfig;
