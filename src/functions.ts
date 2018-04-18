@@ -89,9 +89,9 @@ export function shouldBeReplacedWithModuleMove({
   if (!foundMoudle) return { hit: false };
   const newModulePath = path.parse(path.relative(dir, toFileId));
   const suffix = extensions.some(ext => ext === newModulePath.ext) ? newModulePath.name : newModulePath.base;
-  const prefix = newModulePath.dir === "" ? "." : newModulePath.dir;
+  const prefix = newModulePath.dir === "" ? "." : newModulePath.dir.startsWith(".") ? newModulePath.dir : "." + "/" + newModulePath.dir;
   return {
     hit: true,
-    newModuleId: decorate(prefix + "/" + suffix),
+    newModuleId: (decorate(prefix + "/" + suffix)).replace(/\/index$/, ""),
   };
 }

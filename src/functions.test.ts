@@ -78,6 +78,18 @@ describe("shouldBeReplacedWithModuleMove", () => {
     } as ShouldBeReplacedResult);
   });
 
+  it("to deep dir", () => {
+    assert.deepEqual(shouldBeReplacedWithModuleMove({
+      targetFileId: "a/b/c/fuga.js",
+      targetModuleName: "./hogehoge",
+      movingFileId: "a/b/c/hogehoge.js",
+      toFileId: "a/b/c/newhoge/hogehoge.js",
+    }), {
+      hit: true,
+      newModuleId: "./newhoge/hogehoge",
+    } as ShouldBeReplacedResult);
+  });
+
   it("extension: JSX", () => {
     assert.deepEqual(shouldBeReplacedWithModuleMove({
       targetFileId: "a/b/c/fuga.js",
@@ -120,12 +132,24 @@ describe("shouldBeReplacedWithModuleMove", () => {
     }), { hit: false } as ShouldBeReplacedResult);
   });
 
-  it("should treat 'index.js' correctly", () => {
+  it("should treat module name correctly when old name ends with 'index.js' ", () => {
     assert.deepEqual(shouldBeReplacedWithModuleMove({
       targetFileId: "a/b/c/fuga.js",
       targetModuleName: "./hogehoge",
       movingFileId: "a/b/c/hogehoge/index.js",
       toFileId: "a/b/c/newhoge.js",
+    }), {
+      hit: true,
+      newModuleId: "./newhoge",
+    } as ShouldBeReplacedResult);
+  });
+
+  it("should treat module name correctly when the new name ends with 'index.js' ", () => {
+    assert.deepEqual(shouldBeReplacedWithModuleMove({
+      targetFileId: "a/b/c/fuga.js",
+      targetModuleName: "./hogehoge",
+      movingFileId: "a/b/c/hogehoge.js",
+      toFileId: "a/b/c/newhoge/index.js",
     }), {
       hit: true,
       newModuleId: "./newhoge",

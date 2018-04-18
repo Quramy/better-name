@@ -21,7 +21,7 @@ exports[`integration test css_modules_prj 1`] = `
 
 import React from 'react';
 import { render } from 'react-dom';
-import Hoge from 'components/Fuga/Hoge';
+import Hoge from './components/Fuga/Hoge';
 
 render(<Hoge />, document.getElementById('app'));
 
