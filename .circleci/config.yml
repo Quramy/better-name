@@ -142,7 +142,7 @@ workflows:
       - deploy:
           requires:
             - build
-          fixtures:
+          filters:
             tags:
               only: /^v.*/
 
