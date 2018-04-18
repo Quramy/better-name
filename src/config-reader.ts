@@ -56,9 +56,9 @@ export async function readRootImportConfig(rootDir: string) {
     let ret: RootImportConfig[] = [];
     if (exists(rootDir, "package.json")) {
       const pkg = await readFileAsJson(rootDir, "package.json");
-      if (pkg["rootImport"]) {
+      if (pkg["betterName"] && pkg["betterName"]["rootImport"]) {
         getLogger().verbose("load babel-root-import config from package.json");
-        return pkg["rootImport"] as RootImportConfig[];
+        return pkg["betterName"]["rootImport"] as RootImportConfig[];
       }
     }
     if (exists(rootDir, ".babelrc")) {
