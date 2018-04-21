@@ -71,6 +71,7 @@ export interface Project {
   getDocumentsList(): Promise<DocumentRef[]>;
   findOne(fileId: FileId): Promise<{ found: DocumentRef | undefined, rest: DocumentRef[] }>;
   find(query: FindQuery): Promise<{ found: DocumentRef[], rest: DocumentRef[] }>;
+  commit(): Promise<this>;
 }
 
 export type LogLevel = "verbose" | "info" | "silent";

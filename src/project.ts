@@ -98,6 +98,12 @@ export class DefaultProject implements Project {
     });
     return { found, rest };
   }
+
+  async commit() {
+    const docs = await this.getDocumentsList();
+    await Promise.all(docs.map(doc => doc.commit()));
+    return this;
+  }
 }
 
 export type AllProjectOptions = {

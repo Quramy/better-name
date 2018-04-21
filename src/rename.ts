@@ -15,8 +15,8 @@ export async function rename(prj: Project, fromPath: string, toPath: string) {
   const fromPrefix = new DefaultFileRef(fromPath, prj.getProjectDir());
   const { found } = await prj.find({ start: fromPrefix.id });
   if (!found.length) return prj;
-  await found.reduce(async (prev, file) => {
-    await prev;
+  const renamedPrj = await found.reduce(async (prev, file) => {
+    const next = await prev;
     const { found, rest } = await prj.findOne(file.getFile().id);
     const to = new DefaultFileRef(createToPath(file.getFile().path, toPath), prj.getProjectDir());
     if (found) {
@@ -29,11 +29,9 @@ export async function rename(prj: Project, fromPath: string, toPath: string) {
       doc.transformFollowing({ from: file.getFile().id, to: to.id });
       return;
     }));
-    if (!found) return prj;
+    if (!found) return next;
     await found.move(to);
-    return prj;
-  }, Promise.resolve() as Promise<any>);
-  const docs = await prj.getDocumentsList();
-  await Promise.all(docs.map(doc => doc.commit()));
-  return prj;
+    return next;
+  }, Promise.resolve(prj));
+  return await renamedPrj.commit();
 }
