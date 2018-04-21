@@ -1,6 +1,6 @@
 import { FileRef, SourceReader, SourceWriter } from "./types";
 import { createProject } from "./project";
-import { BabylonDocumentEntity } from "./docEntity";
+import { BabylonDocumentEntity } from "./doc-entity";
 import * as assert from "assert";
 
 class TestSourceIO implements SourceReader, SourceWriter {

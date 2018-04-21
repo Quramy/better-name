@@ -22,7 +22,7 @@ import {
 } from "./types";
 
 import { DefaultFileRef, FileSourceReader, FileSourceWriter, RimrafAdapter } from "./file-util";
-import { DefaultDocumentRef } from "./docRef";
+import { DefaultDocumentRef } from "./doc-ref";
 
 import {
   readRootImportConfig,

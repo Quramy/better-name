@@ -10,7 +10,7 @@ import {
   FileMappingOptions,
 } from "./types";
 
-import { BabylonDocumentEntity, DefaultDocumentEntity } from "./docEntity";
+import { BabylonDocumentEntity, DefaultDocumentEntity } from "./doc-entity";
 
 export type DefaultDocumentRefCreateOptioons = {
   fileRef: FileRef,
