@@ -27,12 +27,13 @@ export async function rename(prj: Project, fromPath: string, toPath: string) {
       const doc = docRef.getDoc();
       await doc.parse();
       doc.transformFollowing({ from: file.getFile().id, to: to.id });
-      await doc.flush();
       return;
     }));
     if (!found) return prj;
     await found.move(to);
     return prj;
   }, Promise.resolve() as Promise<any>);
+  const docs = await prj.getDocumentsList();
+  await Promise.all(docs.map(doc => doc.commit()));
   return prj;
 }

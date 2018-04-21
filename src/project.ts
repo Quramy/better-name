@@ -22,8 +22,7 @@ import {
 } from "./types";
 
 import { DefaultFileRef, FileSourceReader, FileSourceWriter, RimrafAdapter } from "./file-util";
-import { shouldBeReplaced, shouldBeReplacedWithModuleMove } from "./functions";
-import { BabylonDocumentEntity, DefaultDocumentEntity } from "./docEntity";
+import { DefaultDocumentRef } from "./docRef";
 
 import {
   readRootImportConfig,
@@ -130,66 +129,4 @@ export async function createProject<X extends DefaultProject>(k: typeof DefaultP
 
 export function createDefaultProject(configuration: ProjectOptions) {
   return createProject<DefaultProject>(DefaultProject, configuration);
-}
-
-export type DefaultDocumentRefCreateOptioons = {
-  fileRef: FileRef,
-  reader: SourceReader,
-  writer: SourceWriter,
-  remover: SourceRemover,
-  fileMappingOptions: FileMappingOptions,
-};
-
-function createEntity(opt: DocumentEntityCreateOptions) {
-  const ext = path.extname(opt.fileRef.id);
-  switch (ext) {
-    case ".js":
-    case ".mjs":
-    case ".jsx":
-      return new BabylonDocumentEntity(opt);
-    default:
-      return new DefaultDocumentEntity(opt);
-  }
-}
-
-export class DefaultDocumentRef implements DocumentRef {
-
-  private _file: FileRef;
-
-  constructor(private _opt: DefaultDocumentRefCreateOptioons) {
-    this._file = _opt.fileRef;
-  }
-
-  private _doc?: DocumentEntity | null;
-
-  getFile() {
-    return this._file;
-  }
-
-  getDoc() {
-    if (this._doc) return this._doc;
-    const {
-      reader,
-      writer,
-      remover,
-      ...rest
-    } = this._opt;
-    const ref = createEntity({ ...rest });
-    ref.reader = reader;
-    ref.writer = writer;
-    this._doc = ref;
-    return this._doc;
-  }
-
-  detach(): void {
-    this._doc = null;
-  }
-
-  async move(to:FileRef) {
-    await this._opt.remover.delete(this._file);
-    await this.getDoc().move(to);
-    this._file = to;
-    await this.getDoc().flush(true);
-    return this;
-  }
 }

@@ -27,6 +27,7 @@ export interface DocumentRef {
   getDoc(): DocumentEntity;
   detach(): void;
   move(newFile: FileRef): Promise<this>;
+  commit(): Promise<this>;
 }
 
 export interface TransformOptions {
