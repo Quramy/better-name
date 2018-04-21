@@ -1,6 +1,13 @@
-import { File as FileAst, ImportDeclaration, stringLiteral, StringLiteral } from "babel-types";
+import {
+  File as FileAst,
+  ImportDeclaration,
+  ExportAllDeclaration,
+  ExportNamedDeclaration,
+  stringLiteral,
+  StringLiteral,
+} from "babel-types";
 import { parse } from "babylon";
-import traverse from "babel-traverse";
+import traverse, { NodePath } from "babel-traverse";
 import generate from "babel-generator";
 import { getLogger } from "./logger";
 
@@ -142,14 +149,19 @@ export class BabylonDocumentEntity implements DocumentEntity {
     }
     let flag = false;
     let newModuleName: string;
+    const pathHandler = (path: NodePath<ImportDeclaration | ExportAllDeclaration | ExportNamedDeclaration>) => {
+      const { source } = path.node;
+      if (!source) return;
+      const result = matcher(source);
+      if (result.hit) {
+        flag = true;
+        newModuleName = result.newModuleId;
+      }
+    };
     traverse(this._file, {
-      ImportDeclaration: (path) => {
-        const result = matcher(path.node.source);
-        if (result.hit) {
-          flag = true;
-          newModuleName = result.newModuleId;
-        }
-      },
+      ImportDeclaration: pathHandler,
+      ExportAllDeclaration: pathHandler,
+      ExportNamedDeclaration: pathHandler,
       exit(path) {
         if (flag && path.isImportDeclaration()) flag = false;
       },
