@@ -115,30 +115,30 @@ workflows:
   build_pipeline:
     jobs:
       - build
-      - confirm_patch:
-          type: approval
-          filters:
-            tags:
-              ignore: /^v.*/
-            branches:
-              only: master
-          requires:
-            - build
-      - confirm_minor:
-          type: approval
-          filters:
-            tags:
-              ignore: /^v.*/
-            branches:
-              only: master
-          requires:
-            - build
-      - deploy_patch:
-          requires:
-            - confirm_patch
-      - deploy_minor:
-          requires:
-            - confirm_minor
+        # - confirm_patch:
+        # -   type: approval
+        # -   filters:
+        # -     tags:
+        # -       ignore: /^v.*/
+        # -     branches:
+        # -       only: master
+        # -   requires:
+        # -     - build
+      - # - confirm_minor:
+        # -   type: approval
+        # -   filters:
+        # -     tags:
+        # -       ignore: /^v.*/
+        # -     branches:
+        # -       only: master
+        # -   requires:
+        # -     - build
+      - # - deploy_patch:
+        # -   requires:
+        # -     - confirm_patch
+      - # - deploy_minor:
+        # -   requires:
+        # -     - confirm_minor
       - deploy:
           filters:
             tags:
