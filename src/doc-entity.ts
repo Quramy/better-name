@@ -5,7 +5,7 @@ import {
   ExportNamedDeclaration,
   stringLiteral,
   StringLiteral,
-} from "babel-types";
+} from "@babel/types";
 import { parse } from "babylon";
 import traverse, { NodePath } from "@babel/traverse";
 import generate from "@babel/generator";
