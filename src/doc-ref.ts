@@ -13,11 +13,13 @@ import {
 import { BabylonDocumentEntity, DefaultDocumentEntity } from "./doc-entity";
 
 export type DefaultDocumentRefCreateOptioons = {
+  projectRoot: string,
   fileRef: FileRef,
   reader: SourceReader,
   writer: SourceWriter,
   remover: SourceRemover,
   fileMappingOptions: FileMappingOptions,
+  enabledPrettier: boolean,
 };
 
 function createEntity(opt: DocumentEntityCreateOptions) {
