@@ -26,6 +26,7 @@ import {
   shouldBeReplacedWithModuleMove,
   ShouldBeReplacedResult,
 } from "./functions";
+import { Prettier } from "./prettier";
 
 export class DefaultDocumentEntity implements DocumentEntity {
   private _fref: FileRef;
@@ -86,6 +87,7 @@ export class BabylonDocumentEntity implements DocumentEntity {
   private _dirty: boolean = true;
   private _rawSource?: string;
   private _file?: FileAst;
+  private _prettier: Prettier;
 
   reader!: SourceReader;
   writer!: SourceWriter;
@@ -93,14 +95,19 @@ export class BabylonDocumentEntity implements DocumentEntity {
   readonly fileMappingOptions: FileMappingOptions;
 
   constructor ({
+    projectRoot = "",
     fileRef,
     fileMappingOptions = { },
+    enabledPrettier = true,
   }: {
+    projectRoot?: string,
     fileRef: FileRef,
     fileMappingOptions?: FileMappingOptions,
+    enabledPrettier?: boolean,
   }) {
     this._fref= fileRef;
     this.fileMappingOptions = fileMappingOptions;
+    this._prettier = new Prettier({ projectRoot, enabled: !!projectRoot && enabledPrettier });
   }
 
   get fileRef() {
@@ -202,7 +209,7 @@ export class BabylonDocumentEntity implements DocumentEntity {
     if (!this._file || !this._rawSource) {
       throw new Error("Cannot flush because the source or AST is not set.");
     }
-    const newSrc = generate(this._file, {}, this._rawSource).code;
+    const newSrc = await this._prettier.format(generate(this._file, {}, this._rawSource).code);
     await this.writer.write(this.fileRef, newSrc);
     getLogger().info(`write contents to "${this.fileRef.id}".`);
     this._touched = false;

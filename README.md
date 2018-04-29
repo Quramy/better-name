@@ -68,6 +68,12 @@ You can customize the glob pattern with --patterns` option or configuring in pac
   },
 ```
 
+#### Format with Prettier
+This CLI format your code after replace import declarations if your project has Prettier config file(.prettierrc, .prettierrc.js,,,).
+You can turn off this behavior passing `--no-prettier` options to CLI.
+
+I strongly recommend to enable Prettier format because this CLI uses babylon for parsing and replacing import declarations and sometimes the replacing procedure breaks your sorucecode's indenting or quatations.
+
 #### Root import
 Root path mapping using [babel-plugin-root-import](https://github.com/entwicklerstube/babel-plugin-root-import) is supported.
 Path mapping configuration is loaded automaticcaly if your .babelrc has `babel-plugin-root-import` section.
@@ -91,9 +97,6 @@ You also can configure path mapping via package.json such as:
 ```
 
 ## Remarks
-### Use with prettier
-This tools uses babylon by parsing and replacing import declarations. And sometimes the replacing procedure breaks your sorucecode's indenting. So I strongly recommend to use with Prettier.
-
 ### Available file types
 This CLI can replace import declarations in .js, .jsx, or .mjs.
 

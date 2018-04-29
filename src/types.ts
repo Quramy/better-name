@@ -36,8 +36,10 @@ export interface TransformOptions {
 }
 
 export interface DocumentEntityCreateOptions {
+  projectRoot: string,
   fileRef: FileRef,
   fileMappingOptions?: FileMappingOptions,
+  enabledPrettier: boolean,
 }
 
 export interface DocumentEntity {

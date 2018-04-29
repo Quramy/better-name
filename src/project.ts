@@ -58,11 +58,13 @@ export class DefaultProject implements Project {
         const refs = files.map(f => {
           const fileRef = new DefaultFileRef(f, this._config.rootDir);
           return new DefaultDocumentRef({
+            projectRoot: this._config.rootDir,
             fileRef,
             reader: this.reader,
             writer: this.writer,
             remover: this.remover,
             fileMappingOptions: this._config.fileMapping,
+            enabledPrettier: !!this._config.prettier,
           });
         });
         this._docRefList = refs;
@@ -110,11 +112,13 @@ export type AllProjectOptions = {
   rootDir: string;
   patterns: string[];
   fileMapping: FileMappingOptions;
+  prettier: boolean;
 };
 
 export const defaultProjectConfig = {
   patterns: ["src/**/*.{js,mjs,jsx}", "!node_modules/**/*"],
   fileMapping: { },
+  prettier: true,
 }
 
 export type ProjectOptions = $PartialOptional<AllProjectOptions, typeof defaultProjectConfig>;
