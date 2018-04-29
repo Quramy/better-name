@@ -49,9 +49,9 @@ export default from './hogehoge';
       docEntity.transformPreceding("toDir/file");
       await docEntity.flush();
       assert.equal(io.source.trim(), `
-import HogeHoge from '../fromDir/hogehoge';
-export * from '../fromDir/hogehoge';
-export default from '../fromDir/hogehoge';
+import HogeHoge from "../fromDir/hogehoge";
+export * from "../fromDir/hogehoge";
+export default from "../fromDir/hogehoge";
       `.trim());
       done();
     });
@@ -70,9 +70,9 @@ export default from './hogehoge';
       docEntity.transformFollowing({ from: 'hogehoge.js', to: 'fuga.js' });
       await docEntity.flush();
       assert.equal(io.source.trim(), `
-import HogeHoge from './fuga';
-export * from './fuga';
-export default from './fuga';
+import HogeHoge from "./fuga";
+export * from "./fuga";
+export default from "./fuga";
       `.trim());
       done();
     });
@@ -87,7 +87,7 @@ export default from './fuga';
       await docEntity.parse();
       docEntity.transformFollowing({ from: 'piyopiyo.js', to: 'bar.js' });
       await docEntity.flush();
-      assert.equal(io.source, "import HogeHoge from './fuga';" + "\n" + "import Piyo from './bar';");
+      assert.equal(io.source, `import HogeHoge from "./fuga";` + "\n" + `import Piyo from "./bar";`);
       done();
     });
 

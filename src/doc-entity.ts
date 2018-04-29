@@ -7,8 +7,8 @@ import {
   StringLiteral,
 } from "babel-types";
 import { parse } from "babylon";
-import traverse, { NodePath } from "babel-traverse";
-import generate from "babel-generator";
+import traverse, { NodePath } from "@babel/traverse";
+import generate from "@babel/generator";
 import { getLogger } from "./logger";
 
 import {
@@ -119,6 +119,8 @@ export class BabylonDocumentEntity implements DocumentEntity {
       try {
         this._file = parse(this._rawSource, {
           sourceType: "module",
+          // TODO
+          // arguments type mismatch
           plugins: [
             "jsx",
             "flow",
@@ -132,6 +134,7 @@ export class BabylonDocumentEntity implements DocumentEntity {
             "functionBind",
             "functionSent",
             "objectRestSpread",
+            "exportDefaultFrom" as any,
           ],
         });
       } catch (e) {
