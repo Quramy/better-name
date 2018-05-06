@@ -29,8 +29,8 @@ export class Prettier {
       }
       this._options = opt;
       getLogger().verbose("Read prettier options:", opt);
-      return this._options;
     }
+    return this._options;
   }
 
   async format(code: string) {

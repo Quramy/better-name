@@ -3,7 +3,7 @@ import * as fs from "fs";
 import { IOptions } from "glob";
 
 // FIXME
-type GlobAllFn = (patterns: string[], opt: IOptions, cb: (err: any, files: string[]) => void) => void
+type GlobAllFn = (patterns: string[], opt: IOptions, cb: (err: any, files: string[]) => void) => void;
 const globAll = require("glob-all") as GlobAllFn;
 
 import {
@@ -28,6 +28,7 @@ import {
   readRootImportConfig,
   readProjectConfig,
 } from "./config-reader";
+import { getLogger } from "./logger";
 
 export class DefaultProject implements Project {
   private _docRefList?: DocumentRef[];
@@ -129,7 +130,7 @@ export const defaultProjectConfig = {
   fileMapping: { },
   prettier: true,
   test: false,
-}
+};
 
 export type ProjectOptions = $PartialOptional<AllProjectOptions, typeof defaultProjectConfig>;
 
@@ -137,11 +138,12 @@ export async function createProject<X extends DefaultProject>(k: typeof DefaultP
   const { rootDir } = configuration;
   const rootImport = await readRootImportConfig(rootDir);
   const readConf = await readProjectConfig(rootDir);
-  const conf = { ...defaultProjectConfig,  ...readConf, ...configuration }
+  const conf = { ...defaultProjectConfig,  ...readConf, ...configuration };
   conf.fileMapping = {
     rootImport: rootImport,
   };
-  const prj = new k({ 
+  getLogger().verbose("project configurations: ", conf);
+  const prj = new k({
     ...conf,
   }) as X;
   return prj;

@@ -14,6 +14,7 @@ export class ConsoleLogger implements Logger{
 
   info(msg: string) {
     if (this._level !== "silent") {
+      // tslint:disable-next-line no-console
       console.log(msg);
     }
     return this;
@@ -21,6 +22,7 @@ export class ConsoleLogger implements Logger{
 
   error(obj: string | Error) {
     if (this._level !== "silent") {
+      // tslint:disable-next-line no-console
       console.error(obj);
     }
     return this;
@@ -28,9 +30,11 @@ export class ConsoleLogger implements Logger{
 
   verbose(msg: string, ...objects: any[]) {
     if (this._level === "verbose") {
+      // tslint:disable-next-line no-console
       console.log(msg);
       if (objects && objects.length) {
         objects.forEach(obj => {
+          // tslint:disable-next-line no-console
           console.log(JSON.stringify(obj, null, 2));
         });
       }

@@ -48,20 +48,20 @@ export class RimrafAdapter implements SourceRemover {
       rimraf(file.path, (err) => {
         if (err) return rej(err);
         res();
-      })
+      });
     });
   }
 }
 
 export class NoopWriter implements SourceWriter {
   async write(file: FileRef, source: string) {
-    return
+    return;
   }
 }
 
 export class NoopRemover implements SourceRemover {
   async delete(file: FileRef) {
-    return
+    return;
   }
 }
 

@@ -1,7 +1,7 @@
 export type $DiffKey<T, U> = T extends U ? never : T;
 export type $Diff<T, U> = Pick<T, $DiffKey<keyof T, keyof U>>;
 export type $Optional<T> = { [P in keyof T]?: T[P] };
-export type $PartialOptional<T, U> = $Diff<T, U> & $Optional<U>
+export type $PartialOptional<T, U> = $Diff<T, U> & $Optional<U>;
 
 export type FileId = string;
 
@@ -36,10 +36,10 @@ export interface TransformOptions {
 }
 
 export interface DocumentEntityCreateOptions {
-  projectRoot: string,
-  fileRef: FileRef,
-  fileMappingOptions?: FileMappingOptions,
-  enabledPrettier: boolean,
+  projectRoot: string;
+  fileRef: FileRef;
+  fileMappingOptions?: FileMappingOptions;
+  enabledPrettier: boolean;
 }
 
 export interface DocumentEntity {
@@ -61,7 +61,7 @@ export type RootImportConfig = {
 
 export type FileMappingOptions = {
   rootImport?: RootImportConfig[];
-}
+};
 
 export type FindQuery = {
   start: string;

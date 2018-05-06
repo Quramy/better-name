@@ -24,6 +24,7 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "yarn.lock" }}
         
+      - run: yarn lint
       - run: yarn test --coverage
       - run: cp -rf coverage/lcov-report /tmp/coverage-report
       - store_artifacts:

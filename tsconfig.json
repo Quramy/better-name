@@ -6,7 +6,10 @@
     "sourceMap": true,
     "outDir": "built",
     "rootDir": ".",
-    "strict": true
+    "strict": true,
+    "plugins": [
+      { "name": "tslint-language-service" }
+    ]
   },
   "exclude": ["node_modules", "built", "lib"]
 }

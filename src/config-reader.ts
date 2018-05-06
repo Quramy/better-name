@@ -47,13 +47,13 @@ export function extractRootImportConfigFromBabelrc(babelrc: BabelrcType): RootIm
     if (p[0] !== "babel-root-import") return;
     conf = p[1];
     getLogger().verbose("load babel-root-import config from .babelrc");
-  })
+  });
   return conf;
 }
 
 export async function readRootImportConfig(rootDir: string) {
   try {
-    let ret: RootImportConfig[] = [];
+    const ret: RootImportConfig[] = [];
     if (exists(rootDir, "package.json")) {
       const pkg = await readFileAsJson(rootDir, "package.json");
       if (pkg["betterName"] && pkg["betterName"]["rootImport"]) {
@@ -64,7 +64,7 @@ export async function readRootImportConfig(rootDir: string) {
     if (exists(rootDir, ".babelrc")) {
       const babelrc = await readFileAsJson(rootDir, ".babelrc");
       return extractRootImportConfigFromBabelrc(babelrc);
-    } 
+    }
     return [] as RootImportConfig[];
   } catch(err) {
     return [] as RootImportConfig[];

@@ -1,4 +1,5 @@
+.circleci/
 src/
-test-fixtures/
+integration-test/
 built/
 lib/**/*.test.*

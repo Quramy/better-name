@@ -22,12 +22,12 @@ function createOptions() {
     .option("q", { alias: "quiet", desc: "Suppress logging messages", boolean: true, default: false })
     .option("prettier", { boolean: true, desc: "Format with prettier", default: true })
     .option("version", { alias: "v", desc: "Print version number." }).version(getVersion())
-    .option("patterns", { alias: "p", desc: "Project file glob pattern.", array: true })
+    .option("pattern", { alias: "p", desc: "Project file glob pattern." })
     .option("test", { boolean: true, desc: "Run test mode.", default: false })
   ;
   return yargs.argv as {
     _: string[],
-    patterns?: string[],
+    pattern?: string,
     verbose?: boolean,
     quiet?: boolean,
     prettier?: boolean,
@@ -42,13 +42,13 @@ async function main() {
     yargs.showHelp();
     return;
   }
-  let additionalConf = { } as { patterns?: string[], prettier?: boolean, test?: boolean };
+  const additionalConf = { } as { patterns?: string[], prettier?: boolean, test?: boolean };
   if (argv.quiet) {
     logger._level = "silent";
   } else if(argv.verbose) {
     logger._level = "verbose";
   }
-  if (argv.patterns && argv.patterns.length) additionalConf.patterns = argv.patterns;
+  if (argv.pattern) additionalConf.patterns = [argv.pattern];
   if (!argv.prettier) additionalConf.prettier = false;
   if (argv.test) additionalConf.test = true;
   const prj = await createDefaultProject({ ...additionalConf, rootDir: process.cwd() });

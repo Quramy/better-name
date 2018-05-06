@@ -32,7 +32,7 @@ export function replaceRootImport(moduleName: string, fileId: string, config: Ro
       decorateWithConfig: (name: string) => name,
     };
   }
-  const moduleFileId = path.join(suffix, moduleName.slice(prefix.length))
+  const moduleFileId = path.join(suffix, moduleName.slice(prefix.length));
   const dir = path.dirname(fileId);
   const rel = path.relative(dir, moduleFileId);
   const decorate = (name: string) => {
@@ -87,7 +87,7 @@ export function shouldBeReplacedWithModuleMove({
     decorate = result.decorateWithConfig;
   }
   if (!/^\./.test(targetModuleName)) return { hit: false };
-  const dir = path.dirname(targetFileId)
+  const dir = path.dirname(targetFileId);
   const filePrefix = path.normalize(path.join(dir, targetModuleName));
   const extensions = defaultExtensions;
   let foundMoudle: string | undefined;

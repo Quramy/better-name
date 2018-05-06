@@ -148,7 +148,7 @@ export class BabylonDocumentEntity implements DocumentEntity {
       } catch (e) {
         if (e.name === "SyntaxError") {
           getLogger().warn(this.fileRef.id + ": " + e.message);
-          const hit = (e.message as string).match(/\((\d+):(\d+)\)\s*$/)
+          const hit = (e.message as string).match(/\((\d+):(\d+)\)\s*$/);
           if (hit && this._rawSource) {
             const l = Math.max(+hit[1] - 1, 1);
             const c = +hit[2] - 1;
@@ -227,7 +227,7 @@ export class BabylonDocumentEntity implements DocumentEntity {
     this._touched = false;
     return this;
   }
-  
+
   async move(newFile: FileRef) {
     if (this._fref.path === newFile.path) {
       return this;

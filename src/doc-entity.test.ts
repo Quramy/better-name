@@ -28,7 +28,7 @@ describe("DocumentEntity", () => {
 
   describe("#parse", () => {
     it("should catch syntax error", async done => {
-      const io = new TestSourceIO(`hogehoge::::`)
+      const io = new TestSourceIO(`hogehoge::::`);
       const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("fromFile") });
       docEntity.reader = docEntity.writer = io;
       try {
@@ -42,7 +42,7 @@ describe("DocumentEntity", () => {
 
   describe("#transformPreceding", () => {
     it("should not replace source in the same dir move", async done => {
-      const io = new TestSourceIO(`import HogeHoge from './hogehoge';`)
+      const io = new TestSourceIO(`import HogeHoge from './hogehoge';`);
       const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("fromFile") });
       docEntity.reader = docEntity.writer = io;
       await docEntity.parse();
@@ -57,7 +57,7 @@ describe("DocumentEntity", () => {
 import HogeHoge from './hogehoge';
 export * from './hogehoge';
 export default from './hogehoge';
-      `)
+      `);
       const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("fromDir/file") });
       docEntity.reader = docEntity.writer = io;
       await docEntity.parse();
@@ -82,7 +82,7 @@ export default from './hogehoge';
       const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("test") });
       docEntity.reader = docEntity.writer = io;
       await docEntity.parse();
-      docEntity.transformFollowing({ from: 'hogehoge.js', to: 'fuga.js' });
+      docEntity.transformFollowing({ from: "hogehoge.js", to: "fuga.js" });
       await docEntity.flush();
       assert.equal(io.source.trim(), `
 import HogeHoge from "./fuga";
@@ -93,14 +93,14 @@ export default from "./fuga";
     });
 
     it("should replace source twitce", async done => {
-      const io = new TestSourceIO("import HogeHoge from './hogehoge';" + "\n" + "import Piyo from './piyopiyo';")
+      const io = new TestSourceIO("import HogeHoge from './hogehoge';" + "\n" + "import Piyo from './piyopiyo';");
       const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("test") });
       docEntity.reader = docEntity.writer = io;
       await docEntity.parse();
-      docEntity.transformFollowing({ from: 'hogehoge.js', to: 'fuga.js' });
+      docEntity.transformFollowing({ from: "hogehoge.js", to: "fuga.js" });
       await docEntity.flush();
       await docEntity.parse();
-      docEntity.transformFollowing({ from: 'piyopiyo.js', to: 'bar.js' });
+      docEntity.transformFollowing({ from: "piyopiyo.js", to: "bar.js" });
       await docEntity.flush();
       assert.equal(io.source, `import HogeHoge from "./fuga";` + "\n" + `import Piyo from "./bar";`);
       done();

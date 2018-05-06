@@ -40,7 +40,7 @@ describe("shouldBeReplaced", () => {
       targetModuleName: "file",
     }), {
       hit: false,
-    } as ShouldBeReplacedResult)
+    } as ShouldBeReplacedResult);
   });
 
   it("should not hit when the from/to are in the same dir", () => {
@@ -50,7 +50,7 @@ describe("shouldBeReplaced", () => {
       targetModuleName: "file",
     }), {
       hit: false,
-    } as ShouldBeReplacedResult)
+    } as ShouldBeReplacedResult);
   });
 
   it("should hit", () => {
@@ -61,7 +61,7 @@ describe("shouldBeReplaced", () => {
     }), {
       hit: true,
       newModuleId: "../fromDir/file",
-    } as ShouldBeReplacedResult)
+    } as ShouldBeReplacedResult);
   });
 });
 
