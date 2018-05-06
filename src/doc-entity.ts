@@ -69,8 +69,10 @@ export class DefaultDocumentEntity implements DocumentEntity {
   }
 
   async flush(force = false) {
-    await this.writer.write(this.fileRef, this._code || "");
-    getLogger().info(`write contents to "${this.fileRef.id}".`);
+    if (force) {
+      await this.writer.write(this.fileRef, this._code || "");
+      getLogger().info(`write contents to "${this.fileRef.id}".`);
+    }
     return this;
   }
 
