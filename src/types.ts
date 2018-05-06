@@ -35,11 +35,15 @@ export interface TransformOptions {
   to: string;
 }
 
+export interface Formatter {
+  format(code: string): Promise<string>;
+}
+
 export interface DocumentEntityCreateOptions {
   projectRoot: string;
   fileRef: FileRef;
   fileMappingOptions?: FileMappingOptions;
-  enabledPrettier: boolean;
+  formatter?: Formatter;
 }
 
 export interface DocumentEntity {

@@ -29,6 +29,7 @@ import {
   readProjectConfig,
 } from "./config-reader";
 import { getLogger } from "./logger";
+import { Prettier, noopPrettier } from "./prettier";
 
 export class DefaultProject implements Project {
   private _docRefList?: DocumentRef[];
@@ -73,7 +74,9 @@ export class DefaultProject implements Project {
             writer: this.writer,
             remover: this.remover,
             fileMappingOptions: this._config.fileMapping,
-            enabledPrettier: !!this._config.prettier,
+            formatter: this._config.prettier ? new Prettier({
+              projectRoot: this._config.rootDir,
+            }) : noopPrettier,
           });
         });
         this._docRefList = refs;

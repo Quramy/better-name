@@ -19,6 +19,7 @@ import {
   DocumentEntity,
   TransformOptions,
   FileMappingOptions,
+  Formatter,
 } from "./types";
 
 import {
@@ -27,7 +28,7 @@ import {
   ShouldBeReplacedResult,
   range,
 } from "./functions";
-import { Prettier } from "./prettier";
+import { Prettier, noopPrettier } from "./prettier";
 
 export class DefaultDocumentEntity implements DocumentEntity {
   private _fref: FileRef;
@@ -68,9 +69,8 @@ export class DefaultDocumentEntity implements DocumentEntity {
   }
 
   async flush(force = false) {
-    if (force) {
-      await this.writer.write(this.fileRef, this._code || "");
-    }
+    await this.writer.write(this.fileRef, this._code || "");
+    getLogger().info(`write contents to "${this.fileRef.id}".`);
     return this;
   }
 
@@ -88,7 +88,7 @@ export class BabylonDocumentEntity implements DocumentEntity {
   private _dirty: boolean = true;
   private _rawSource?: string;
   private _file?: FileAst;
-  private _prettier: Prettier;
+  private _formatter: Formatter;
 
   reader!: SourceReader;
   writer!: SourceWriter;
@@ -99,16 +99,16 @@ export class BabylonDocumentEntity implements DocumentEntity {
     projectRoot = "",
     fileRef,
     fileMappingOptions = { },
-    enabledPrettier = true,
+    formatter,
   }: {
     projectRoot?: string,
     fileRef: FileRef,
     fileMappingOptions?: FileMappingOptions,
-    enabledPrettier?: boolean,
+    formatter?: Formatter,
   }) {
     this._fref= fileRef;
     this.fileMappingOptions = fileMappingOptions;
-    this._prettier = new Prettier({ projectRoot, enabled: !!projectRoot && enabledPrettier });
+    this._formatter = formatter || noopPrettier;
   }
 
   get fileRef() {
@@ -221,7 +221,7 @@ export class BabylonDocumentEntity implements DocumentEntity {
     if (!this._file || !this._rawSource) {
       throw new Error("Cannot flush because the source or AST is not set.");
     }
-    const newSrc = await this._prettier.format(generate(this._file, {}, this._rawSource).code);
+    const newSrc = await this._formatter.format(generate(this._file, {}, this._rawSource).code);
     await this.writer.write(this.fileRef, newSrc);
     getLogger().info(`write contents to "${this.fileRef.id}".`);
     this._touched = false;

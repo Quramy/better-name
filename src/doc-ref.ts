@@ -8,9 +8,11 @@ import {
   SourceWriter,
   SourceRemover,
   FileMappingOptions,
+  Formatter,
 } from "./types";
 
 import { BabylonDocumentEntity, DefaultDocumentEntity } from "./doc-entity";
+import { Prettier } from "./prettier";
 
 export type DefaultDocumentRefCreateOptioons = {
   projectRoot: string,
@@ -19,7 +21,7 @@ export type DefaultDocumentRefCreateOptioons = {
   writer: SourceWriter,
   remover: SourceRemover,
   fileMappingOptions: FileMappingOptions,
-  enabledPrettier: boolean,
+  formatter: Formatter,
 };
 
 function createEntity(opt: DocumentEntityCreateOptions) {

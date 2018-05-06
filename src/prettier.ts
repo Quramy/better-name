@@ -3,6 +3,7 @@ import {
   resolveConfig,
   format,
 } from "prettier";
+import { Formatter } from "./types";
 import { getLogger } from "./logger";
 
 export type PrettierOptions = {
@@ -10,7 +11,7 @@ export type PrettierOptions = {
   enabled?: boolean,
 };
 
-export class Prettier {
+export class Prettier implements Formatter {
   private _enabled: boolean = true;
   private readonly _projectRoot: string;
   private _options?: Options;
@@ -40,3 +41,5 @@ export class Prettier {
     return await format(code, options);
   }
 }
+
+export const noopPrettier = new Prettier({ projectRoot: "", enabled: false });
