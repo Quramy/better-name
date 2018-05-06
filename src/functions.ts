@@ -14,6 +14,15 @@ export type ShouldBeReplacedResult = {
   newModuleId: string,
 };
 
+export function range(x: number) {
+  const ret = [] as number[];
+  if (x < 0) return ret;
+  for (let i = 0; i < x; i ++) {
+    ret.push(i);
+  }
+  return ret;
+}
+
 export function replaceRootImport(moduleName: string, fileId: string, config: RootImportConfig) {
   const prefix = (config.rootPathPrefix || "~") + "/";
   const suffix = config.rootPathSuffix || "";

@@ -25,6 +25,7 @@ import {
   shouldBeReplaced,
   shouldBeReplacedWithModuleMove,
   ShouldBeReplacedResult,
+  range,
 } from "./functions";
 import { Prettier } from "./prettier";
 
@@ -145,8 +146,18 @@ export class BabylonDocumentEntity implements DocumentEntity {
           ],
         });
       } catch (e) {
-        console.error(this.fileRef.path, e);
-        throw e;
+        if (e.name === "SyntaxError") {
+          getLogger().warn(this.fileRef.id + ": " + e.message);
+          const hit = (e.message as string).match(/\((\d+):(\d+)\)\s*$/)
+          if (hit && this._rawSource) {
+            const l = Math.max(+hit[1] - 1, 1);
+            const c = +hit[2] - 1;
+            getLogger().warn(this._rawSource.split("\n").slice(l - 1, l).join("\n"));
+            getLogger().warn(range(c).map(x => " ").join("") + "^");
+          }
+        } else {
+          throw e;
+        }
       }
       this._dirty = false;
       return this;
@@ -155,7 +166,7 @@ export class BabylonDocumentEntity implements DocumentEntity {
 
   private _transformImports(matcher: (sourceNode: StringLiteral) => ShouldBeReplacedResult) {
     if (!this._file) {
-      throw new Error("Don't call traverse before parsing AST. Call parse().");
+      return this;
     }
     let flag = false;
     let newModuleName: string;

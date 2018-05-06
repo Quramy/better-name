@@ -25,6 +25,21 @@ class DummyFile implements FileRef {
 }
 
 describe("DocumentEntity", () => {
+
+  describe("#parse", () => {
+    it("should catch syntax error", async done => {
+      const io = new TestSourceIO(`hogehoge::::`)
+      const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("fromFile") });
+      docEntity.reader = docEntity.writer = io;
+      try {
+        await docEntity.parse();
+        done();
+      } catch (e) {
+        done(e);
+      }
+    });
+  });
+
   describe("#transformPreceding", () => {
     it("should not replace source in the same dir move", async done => {
       const io = new TestSourceIO(`import HogeHoge from './hogehoge';`)
