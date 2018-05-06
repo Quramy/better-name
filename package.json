@@ -9,7 +9,7 @@
     "clean": "rimraf lib built coverage",
     "compile": "tsc",
     "test": "jest",
-    "prepublish": "yarn compile && cpx \"built/src/**/*\" lib"
+    "prepare": "yarn compile && cpx \"built/src/**/*\" lib"
   },
   "repository": {
     "type": "git",
