@@ -3,6 +3,7 @@ import {
   resolveConfig,
   format,
 } from "prettier";
+import { getLogger } from "./logger";
 
 export type PrettierOptions = {
   projectRoot: string,
@@ -34,7 +35,7 @@ export class Prettier {
   async format(code: string) {
     if (!this._enabled) return code;
     const options = await this.readConfig();
-    console.log("options", options);
+    getLogger().verbose("options", options);
     if (!options) return code;
     return await format(code, options);
   }
