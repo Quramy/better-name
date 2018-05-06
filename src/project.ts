@@ -65,6 +65,7 @@ export class DefaultProject implements Project {
     return new Promise<DocumentRef[]>((resolve, reject) => {
       globAll(this._config.patterns, { cwd: this._config.rootDir }, (err, files) => {
         if (err) return reject(err);
+        const formatter = this._config.prettier ? new Prettier({ projectRoot: this._config.rootDir }) : noopPrettier;
         const refs = files.map(f => {
           const fileRef = new DefaultFileRef(f, this._config.rootDir);
           return new DefaultDocumentRef({
@@ -74,9 +75,7 @@ export class DefaultProject implements Project {
             writer: this.writer,
             remover: this.remover,
             fileMappingOptions: this._config.fileMapping,
-            formatter: this._config.prettier ? new Prettier({
-              projectRoot: this._config.rootDir,
-            }) : noopPrettier,
+            formatter,
           });
         });
         this._docRefList = refs;
