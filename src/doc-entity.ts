@@ -166,6 +166,7 @@ export class BabylonDocumentEntity implements DocumentEntity {
       if (result.hit) {
         flag = true;
         newModuleName = result.newModuleId;
+        getLogger().info(`${this.fileRef.id}: replacement "${source.value}" to "${newModuleName}"`);
       }
     };
     traverse(this._file, {

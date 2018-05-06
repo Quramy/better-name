@@ -53,6 +53,18 @@ export class RimrafAdapter implements SourceRemover {
   }
 }
 
+export class NoopWriter implements SourceWriter {
+  async write(file: FileRef, source: string) {
+    return
+  }
+}
+
+export class NoopRemover implements SourceRemover {
+  async delete(file: FileRef) {
+    return
+  }
+}
+
 export function exists(r: string, fid: string) {
   return fs.existsSync(path.join(r, fid));
 }

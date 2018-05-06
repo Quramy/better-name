@@ -21,7 +21,7 @@ import {
   FindQuery,
 } from "./types";
 
-import { DefaultFileRef, FileSourceReader, FileSourceWriter, RimrafAdapter } from "./file-util";
+import { DefaultFileRef, FileSourceReader, FileSourceWriter, RimrafAdapter, NoopWriter, NoopRemover } from "./file-util";
 import { DefaultDocumentRef } from "./doc-ref";
 
 import {
@@ -31,13 +31,21 @@ import {
 
 export class DefaultProject implements Project {
   private _docRefList?: DocumentRef[];
-  protected reader: SourceReader = new FileSourceReader();
-  protected writer: SourceWriter = new FileSourceWriter();
-  protected remover: SourceRemover = new RimrafAdapter();
+  protected reader: SourceReader;
+  protected writer: SourceWriter;
+  protected remover: SourceRemover;
 
   constructor(
     private _config: AllProjectOptions,
   ) {
+    this.reader = new FileSourceReader();
+    if (_config.test) {
+      this.writer = new NoopWriter();
+      this.remover = new NoopRemover();
+    } else {
+      this.writer = new FileSourceWriter();
+      this.remover = new RimrafAdapter();
+    }
   }
 
   getProjectDir() {
@@ -113,12 +121,14 @@ export type AllProjectOptions = {
   patterns: string[];
   fileMapping: FileMappingOptions;
   prettier: boolean;
+  test: boolean,
 };
 
 export const defaultProjectConfig = {
   patterns: ["src/**/*.{js,mjs,jsx}", "!node_modules/**/*"],
   fileMapping: { },
   prettier: true,
+  test: false,
 }
 
 export type ProjectOptions = $PartialOptional<AllProjectOptions, typeof defaultProjectConfig>;

@@ -28,6 +28,7 @@ export class Prettier {
         return null;
       }
       this._options = opt;
+      getLogger().verbose("Read prettier options:", opt);
       return this._options;
     }
   }
@@ -35,7 +36,6 @@ export class Prettier {
   async format(code: string) {
     if (!this._enabled) return code;
     const options = await this.readConfig();
-    getLogger().verbose("options", options);
     if (!options) return code;
     return await format(code, options);
   }
