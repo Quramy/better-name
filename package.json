@@ -63,7 +63,9 @@
     "testRegex": "(integration-test/.*|(src/.*\\.test))\\.ts$",
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "\\.d\\.ts$"
+      "\\.d\\.ts$",
+      "built/",
+      "simple_ts_prj/"
     ],
     "moduleFileExtensions": [
       "js",

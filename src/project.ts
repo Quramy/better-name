@@ -128,7 +128,7 @@ export type AllProjectOptions = {
 };
 
 export const defaultProjectConfig = {
-  patterns: ["src/**/*.{js,mjs,jsx}", "!node_modules/**/*"],
+  patterns: ["src/**/*.{js,mjs,jsx,ts,tsx}", "!node_modules/**/*"],
   fileMapping: { },
   prettier: true,
   test: false,
