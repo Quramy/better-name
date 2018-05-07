@@ -70,12 +70,14 @@ export function shouldBeReplacedWithModuleMove({
   movingFileId,
   toFileId,
   opt = { },
+  extensions = defaultExtensions,
 } : {
   targetFileId: string,
   targetModuleName: string,
   movingFileId: string,
   toFileId: string,
   opt?: FileMappingOptions,
+  extensions?: string[],
 }) : ShouldBeReplacedResult {
   let decorate = (name: string) => name;
   if (opt.rootImport && opt.rootImport.length) {
@@ -89,7 +91,6 @@ export function shouldBeReplacedWithModuleMove({
   if (!/^\./.test(targetModuleName)) return { hit: false };
   const dir = path.dirname(targetFileId);
   const filePrefix = path.normalize(path.join(dir, targetModuleName));
-  const extensions = defaultExtensions;
   let foundMoudle: string | undefined;
   if (path.extname(filePrefix) === "") {
     foundMoudle = [...extensions, ...extensions.map(ext => "/index" + ext)].map(ext => filePrefix + ext).find(fileId => fileId === movingFileId);
