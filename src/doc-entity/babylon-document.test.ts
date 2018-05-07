@@ -4,7 +4,7 @@ import { createProject } from "../project";
 import { BabylonDocumentEntity } from "./babylon-document";
 import { TestSourceIO, DummyFile } from "./testing";
 
-describe("DocumentEntity", () => {
+describe("BabylonDocumentEntity", () => {
 
   describe("#parse", () => {
     it("should catch syntax error", async done => {
