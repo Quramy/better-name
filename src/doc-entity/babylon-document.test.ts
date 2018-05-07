@@ -2,27 +2,7 @@ import * as assert from "assert";
 import { FileRef, SourceReader, SourceWriter } from "../types";
 import { createProject } from "../project";
 import { BabylonDocumentEntity } from "./babylon-document";
-
-class TestSourceIO implements SourceReader, SourceWriter {
-  constructor(public source: string) {
-  }
-
-  write(file: FileRef, source: string): Promise<void> {
-    this.source = source;
-    return Promise.resolve();
-  }
-
-  read(file: FileRef): Promise<string> {
-    return Promise.resolve(this.source);
-  }
-}
-
-class DummyFile implements FileRef {
-  constructor(public id: string) { }
-  get path() {
-    return "";
-  }
-}
+import { TestSourceIO, DummyFile } from "./testing";
 
 describe("DocumentEntity", () => {
 
