@@ -3,7 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/Quramy/better-name/badge.svg?branch=master)](https://coveralls.io/github/Quramy/better-name?branch=master)
 [![npm version](https://badge.fury.io/js/better-name.svg)](https://badge.fury.io/js/better-name)
 
-A CLI to rename JavaScript(ES2015) module files.
+A CLI to move JavaScript(ES2015) module files keeping dependencies.
 
 If you have the following JavaScript files coupled with import/export dependencies and you want to refactor via moving the `target.js` to another directory.
 
@@ -25,7 +25,7 @@ export function someFn() {
 }
 ```
 
-This CLI moves this keeping their dependencies. In other words, after `better-name src/oldFile.js src/feat/newFile.js`, the import declaration in the `index.js` file gets updated with the new dependencies:
+This CLI keeps their dependencies. In other words, after `better-name src/oldFile.js src/feat/newFile.js`, the import declaration in the `index.js` file gets updated with the new dependencies:
 
 ```js
 // src/index.js
@@ -56,7 +56,7 @@ Exec `better-name --help` if you want more details :smile:
 #### Project file patterns
 
 By default, this CLI searches files to be replaced via `src/**/*.{js,jsx,mjs}` glob pattern.
-You can customize the glob pattern with --patterns` option or configuring in package.json:
+You can customize the glob pattern with --pattern` option or configuring in package.json:
 
 ```js
   /* package.json */
