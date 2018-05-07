@@ -13,7 +13,7 @@ import { noopPrettier } from "../prettier";
 import { getLogger } from "../logger";
 import { ShouldBeReplacedResult, shouldBeReplaced, shouldBeReplacedWithModuleMove } from "../functions";
 
-function createSourceReplaceTransformerFactory(matcher: (sourceNode: ts.StringLiteral) => ShouldBeReplacedResult, cb: () => any = () => 0): ts.TransformerFactory<ts.SourceFile> {
+function createSourceReplaceTransformerFactory(matcher: (sourceNode: ts.StringLiteral) => ShouldBeReplacedResult, cb: (from: string, to: string) => any = () => 0): ts.TransformerFactory<ts.SourceFile> {
   return (ctx: ts.TransformationContext) => {
     function visitNode(node: ts.Node): ts.Node {
       if (ts.isImportDeclaration(node)) {
@@ -21,7 +21,7 @@ function createSourceReplaceTransformerFactory(matcher: (sourceNode: ts.StringLi
         if (ts.isStringLiteral(expression)) {
           const matchReulst = matcher(expression);
           if (matchReulst.hit) {
-            cb();
+            cb(expression.text, matchReulst.newModuleId);
             return ts.updateImportDeclaration(node, node.decorators, node.modifiers, node.importClause, ts.createLiteral(matchReulst.newModuleId));
           }
         }
@@ -30,7 +30,7 @@ function createSourceReplaceTransformerFactory(matcher: (sourceNode: ts.StringLi
         if (ts.isStringLiteral(expression)) {
           const matchReulst = matcher(expression);
           if (matchReulst.hit) {
-            cb();
+            cb(expression.text, matchReulst.newModuleId);
             return ts.updateExportDeclaration(node, node.decorators, node.modifiers, node.exportClause, ts.createLiteral(matchReulst.newModuleId));
           }
         }
@@ -98,7 +98,10 @@ export class TypeScriptDocumentEntity implements DocumentEntity {
       targetModuleName: expression.text,
       targetFileId: this.fileRef.id,
       toFileId: to,
-    }), () => this._touched = true)]);
+    }), (from, to) => {
+      this._touched = true;
+      getLogger().info(`${this.fileRef.id}: replacement "${from}" to "${to}"`);
+    })]);
     if (transformationResult.transformed && transformationResult.transformed.length > 0) {
       this._source = transformationResult.transformed[0];
     }
@@ -115,7 +118,10 @@ export class TypeScriptDocumentEntity implements DocumentEntity {
       toFileId: to,
       extensions: [".ts", ".tsx", ".d.ts"], // TODO --allowjs
       // opt: this.fileMappingOptions, // TODO using tsconfig paths mapping
-    }), () => this._touched = true)]);
+    }), (from, to) => {
+      this._touched = true;
+      getLogger().info(`${this.fileRef.id}: replacement "${from}" to "${to}"`);
+    })]);
     if (transformationResult.transformed && transformationResult.transformed.length > 0) {
       this._source = transformationResult.transformed[0];
     }
