@@ -3,3 +3,4 @@ src/
 integration-test/
 built/
 lib/**/*.test.*
+lib/**/testing/**

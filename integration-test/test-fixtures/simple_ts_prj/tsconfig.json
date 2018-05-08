@@ -11,5 +11,5 @@
       { "name": "tslint-language-service" }
     ]
   },
-  "exclude": ["node_modules", "built", "lib", "integration-test/test-fixtures/**/*"]
+  "exclude": ["node_modules", "built"]
 }

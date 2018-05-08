@@ -1,30 +1,10 @@
-import { FileRef, SourceReader, SourceWriter } from "./types";
-import { createProject } from "./project";
-import { BabylonDocumentEntity } from "./doc-entity";
 import * as assert from "assert";
+import { FileRef, SourceReader, SourceWriter } from "../types";
+import { createProject } from "../project";
+import { BabylonDocumentEntity } from "./babylon-document";
+import { TestSourceIO, DummyFile } from "./testing";
 
-class TestSourceIO implements SourceReader, SourceWriter {
-  constructor(public source: string) {
-  }
-
-  write(file: FileRef, source: string): Promise<void> {
-    this.source = source;
-    return Promise.resolve();
-  }
-
-  read(file: FileRef): Promise<string> {
-    return Promise.resolve(this.source);
-  }
-}
-
-class DummyFile implements FileRef {
-  constructor(public id: string) { }
-  get path() {
-    return "";
-  }
-}
-
-describe("DocumentEntity", () => {
+describe("BabylonDocumentEntity", () => {
 
   describe("#parse", () => {
     it("should catch syntax error", async done => {

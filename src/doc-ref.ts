@@ -11,7 +11,11 @@ import {
   Formatter,
 } from "./types";
 
-import { BabylonDocumentEntity, DefaultDocumentEntity } from "./doc-entity";
+import {
+  BabylonDocumentEntity,
+  TypeScriptDocumentEntity,
+  DefaultDocumentEntity,
+} from "./doc-entity";
 import { Prettier } from "./prettier";
 
 export type DefaultDocumentRefCreateOptioons = {
@@ -31,6 +35,9 @@ function createEntity(opt: DocumentEntityCreateOptions) {
     case ".mjs":
     case ".jsx":
       return new BabylonDocumentEntity(opt);
+    case ".ts":
+    case ".tsx":
+      return new TypeScriptDocumentEntity(opt);
     default:
       return new DefaultDocumentEntity(opt);
   }

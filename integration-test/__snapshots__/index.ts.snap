@@ -77,3 +77,23 @@ export function someFn() {
   return 'test';
 }"
 `;
+
+exports[`integration test simple_ts_prj 1`] = `
+"
+// id: src/core/index.ts
+
+import { someFn } from \\"../feat/dest\\";
+export default function main() {
+    someFn();
+}
+
+
+// id: src/feat/dest.ts
+
+import { util } from \\"../core/dependee\\";
+export function someFn() {
+    util();
+    return \\"test\\";
+}
+"
+`;

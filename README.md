@@ -98,9 +98,12 @@ You also can configure path mapping via package.json such as:
 
 ## Remarks
 ### Available file types
-This CLI can replace import declarations in .js, .jsx, or .mjs.
+This CLI can replace import declarations in the following file types:
 
-And this CLI allows non-JavaScript import such as:
+- JavaScript: .js, .jsx, .mjs
+- TypeScript: .ts, .tsx
+
+And imports non-JavaScript files are allowed. For example:
 
 
 ```js
