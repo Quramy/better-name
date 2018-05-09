@@ -14,6 +14,12 @@ export type ShouldBeReplacedResult = {
   newModuleId: string,
 };
 
+export interface SourceReplacement {
+  start: number;
+  end: number;
+  replacementText: string;
+}
+
 export function range(x: number) {
   const ret = [] as number[];
   if (x < 0) return ret;
@@ -105,4 +111,12 @@ export function shouldBeReplacedWithModuleMove({
     hit: true,
     newModuleId: (decorate(prefix + "/" + suffix)).replace(/\/index$/, ""),
   };
+}
+
+export function applyReplacementToSource(source: string, replacements: SourceReplacement[]) {
+  const sorted = replacements.slice().sort((a, b) => b.start - a.start);
+  for (const { start, end, replacementText } of sorted) {
+    source = source.slice(0, start) + replacementText + source.slice(end);
+  }
+  return source;
 }
