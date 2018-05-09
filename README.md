@@ -55,8 +55,8 @@ Exec `better-name --help` if you want more details :smile:
 
 #### Project file patterns
 
-By default, this CLI searches files to be replaced via `src/**/*.{js,jsx,mjs}` glob pattern.
-You can customize the glob pattern with --pattern` option or configuring in package.json:
+By default, this CLI searches files to be replaced via `src/**/*.{js,jsx,mjs,ts,tsx}` glob pattern.
+You can customize the glob pattern with `--pattern` option or configuring in package.json:
 
 ```js
   /* package.json */
@@ -67,12 +67,6 @@ You can customize the glob pattern with --pattern` option or configuring in pack
     ]
   },
 ```
-
-#### Format with Prettier
-This CLI format your code after replace import declarations if your project has Prettier config file(.prettierrc, .prettierrc.js,,,).
-You can turn off this behavior passing `--no-prettier` options to CLI.
-
-I strongly recommend to enable Prettier format because this CLI uses babylon for parsing and replacing import declarations and sometimes the replacing procedure breaks your sorucecode's indenting or quatations.
 
 #### Root import
 Root path mapping using [babel-plugin-root-import](https://github.com/entwicklerstube/babel-plugin-root-import) is supported.
@@ -95,6 +89,10 @@ You also can configure path mapping via package.json such as:
     }]
   }
 ```
+
+#### Format with Prettier
+This CLI format your code after replace import declarations if your project has Prettier config file(.prettierrc, .prettierrc.js,,,).
+You can turn on this behavior passing `--prettier` options to CLI.
 
 ## Remarks
 ### Available file types
