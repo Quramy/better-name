@@ -29,7 +29,7 @@ import {
   readProjectConfig,
 } from "./config-reader";
 import { getLogger } from "./logger";
-import { Prettier, noopPrettier } from "./prettier";
+import { Prettier, noopPrettier } from "./formatter/prettier";
 
 export class DefaultProject implements Project {
   private _docRefList?: DocumentRef[];

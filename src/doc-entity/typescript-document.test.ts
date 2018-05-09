@@ -28,9 +28,9 @@ export { default } from './hogehoge';
       docEntity.transformPreceding("toDir/file");
       await docEntity.flush();
       assert.equal(io.source.trim(), `
-import HogeHoge from "../fromDir/hogehoge";
-export * from "../fromDir/hogehoge";
-export { default } from "../fromDir/hogehoge";
+import HogeHoge from '../fromDir/hogehoge';
+export * from '../fromDir/hogehoge';
+export { default } from '../fromDir/hogehoge';
       `.trim());
       done();
     });
@@ -49,9 +49,30 @@ export { default } from './hogehoge';
       docEntity.transformFollowing({ from: "hogehoge.ts", to: "fuga.ts" });
       await docEntity.flush();
       assert.equal(io.source.trim(), `
-import HogeHoge from "./fuga";
-export * from "./fuga";
-export { default } from "./fuga";
+import HogeHoge from './fuga';
+export * from './fuga';
+export { default } from './fuga';
+      `.trim());
+      done();
+    });
+
+    it("should replace correctly called mutiple times", async done => {
+      const io = new TestSourceIO(`
+import HogeHoge from './hogehoge';
+
+import * as Bar from './bar';
+      `);
+      const docEntity = new TypeScriptDocumentEntity({ fileRef: new DummyFile("test") });
+      docEntity.reader = docEntity.writer = io;
+      await docEntity.parse();
+      docEntity.transformFollowing({ from: "bar.ts", to: "foo.ts" });
+      docEntity.transformFollowing({ from: "hogehoge.ts", to: "fuga.ts" });
+      docEntity.transformFollowing({ from: "foo.ts", to: "piyo.ts" });
+      await docEntity.flush();
+      assert.equal(io.source.trim(), `
+import HogeHoge from './fuga';
+
+import * as Bar from './piyo';
       `.trim());
       done();
     });

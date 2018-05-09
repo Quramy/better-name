@@ -7,7 +7,7 @@ describe("prettier helper", () => {
 
     it("should format correctly", async done => {
       const p = new Prettier({
-        projectRoot: path.resolve(__dirname, "../integration-test/test-fixtures/prettier_prj"),
+        projectRoot: path.resolve(__dirname, "../../integration-test/test-fixtures/prettier_prj"),
       });
       const actual = await p.format(`const hoge = "HOGE"`);
       assert.equal(actual.trim(), `const hoge = 'HOGE';`);

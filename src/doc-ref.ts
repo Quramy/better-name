@@ -16,7 +16,7 @@ import {
   TypeScriptDocumentEntity,
   DefaultDocumentEntity,
 } from "./doc-entity";
-import { Prettier } from "./prettier";
+import { Prettier } from "./formatter/prettier";
 
 export type DefaultDocumentRefCreateOptioons = {
   projectRoot: string,

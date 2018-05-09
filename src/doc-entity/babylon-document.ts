@@ -1,4 +1,5 @@
 import {
+  Node,
   File as FileAst,
   ImportDeclaration,
   ExportAllDeclaration,
@@ -8,8 +9,6 @@ import {
 } from "@babel/types";
 import { parse } from "babylon";
 import traverse, { NodePath } from "@babel/traverse";
-import generate from "@babel/generator";
-import { getLogger } from "../logger";
 
 import {
   FileRef,
@@ -22,24 +21,24 @@ import {
   Formatter,
 } from "../types";
 
+import { AstDocumentEntity } from "./ast-document";
+
 import {
+  ShouldBeReplacedResult,
+  SourceReplacement,
   shouldBeReplaced,
   shouldBeReplacedWithModuleMove,
-  ShouldBeReplacedResult,
   range,
 } from "../functions";
-import { Prettier, noopPrettier } from "../prettier";
+import { getLogger } from "../logger";
 
+import { Prettier, noopPrettier } from "../formatter/prettier";
 
-export class BabylonDocumentEntity implements DocumentEntity {
+export class BabylonDocumentEntity extends AstDocumentEntity<Node> implements DocumentEntity {
 
-  private _fref: FileRef;
-
-  private _touched: boolean = false;
   private _dirty: boolean = true;
   private _rawSource?: string;
   private _file?: FileAst;
-  private _formatter: Formatter;
 
   reader!: SourceReader;
   writer!: SourceWriter;
@@ -57,9 +56,8 @@ export class BabylonDocumentEntity implements DocumentEntity {
     fileMappingOptions?: FileMappingOptions,
     formatter?: Formatter,
   }) {
-    this._fref= fileRef;
+    super({ fileRef, formatter: formatter || noopPrettier });
     this.fileMappingOptions = fileMappingOptions;
-    this._formatter = formatter || noopPrettier;
   }
 
   get fileRef() {
@@ -68,6 +66,11 @@ export class BabylonDocumentEntity implements DocumentEntity {
 
   get isDirty() {
     return this._dirty;
+  }
+
+  get sourceText() {
+    if (!this._rawSource) return;
+    return this._rawSource;
   }
 
   async parse() {
@@ -115,6 +118,41 @@ export class BabylonDocumentEntity implements DocumentEntity {
     }
   }
 
+  transformPreceding(to: string) {
+    return this._transformImports(s => shouldBeReplaced({
+      targetModuleName: s.value,
+      targetFileId: this.fileRef.id,
+      toFileId: to,
+    }));
+  }
+
+  transformFollowing({ from, to } : TransformOptions): this {
+    return this._transformImports(s => shouldBeReplacedWithModuleMove({
+      targetFileId: this.fileRef.id,
+      targetModuleName: s.value,
+      movingFileId: from,
+      toFileId: to,
+      opt: this.fileMappingOptions,
+    }));
+  }
+
+  getReplacements(): SourceReplacement[] {
+    return this._uncommitedMutations.map(({ location, replacementText }) => {
+      for (; !location.isOrigin; location = location.node) { }
+      const start = location.node.type === "StringLiteral" ? location.node.start + 1 : location.node.start;
+      const end = location.node.type === "StringLiteral" ? location.node.end - 1 : location.node.end;
+      return { start, end, replacementText } as SourceReplacement;
+    });
+  }
+
+  clear() {
+    this._rawSource = undefined;
+    this._file = undefined;
+    this._dirty = true;
+    this._uncommitedMutations = [];
+    return this;
+  }
+
   private _transformImports(matcher: (sourceNode: StringLiteral) => ShouldBeReplacedResult) {
     if (!this._file) {
       return this;
@@ -140,51 +178,13 @@ export class BabylonDocumentEntity implements DocumentEntity {
       },
       StringLiteral: (path) => {
         if (flag && newModuleName) {
-          path.replaceWith(stringLiteral(newModuleName));
-          this._touched = true;
+          const newNode = stringLiteral(newModuleName);
+          this._updateMutations(path.node, newNode, newModuleName, node => !!node.loc);
+          path.replaceWith(newNode);
           flag = false;
         }
       },
     });
     return this;
   }
-
-  transformPreceding(to: string) {
-    return this._transformImports(s => shouldBeReplaced({
-      targetModuleName: s.value,
-      targetFileId: this.fileRef.id,
-      toFileId: to,
-    }));
-  }
-
-  transformFollowing({ from, to } : TransformOptions): this {
-    return this._transformImports(s => shouldBeReplacedWithModuleMove({
-      targetFileId: this.fileRef.id,
-      targetModuleName: s.value,
-      movingFileId: from,
-      toFileId: to,
-      opt: this.fileMappingOptions,
-    }));
-  }
-
-  async flush(force: boolean = false) {
-    if (!this._touched && !force) return this;
-    if (!this._file || !this._rawSource) {
-      throw new Error("Cannot flush because the source or AST is not set.");
-    }
-    const newSrc = await this._formatter.format(generate(this._file, {}, this._rawSource).code);
-    await this.writer.write(this.fileRef, newSrc);
-    getLogger().info(`write contents to "${this.fileRef.id}".`);
-    this._touched = false;
-    return this;
-  }
-
-  async move(newFile: FileRef) {
-    if (this._fref.path === newFile.path) {
-      return this;
-    }
-    this._fref = newFile;
-    return this;
-  }
-
 }

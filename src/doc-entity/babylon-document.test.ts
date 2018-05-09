@@ -36,7 +36,7 @@ describe("BabylonDocumentEntity", () => {
       const io = new TestSourceIO(`
 import HogeHoge from './hogehoge';
 export * from './hogehoge';
-export default from './hogehoge';
+export { default } from './hogehoge';
       `);
       const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("fromDir/file") });
       docEntity.reader = docEntity.writer = io;
@@ -44,9 +44,9 @@ export default from './hogehoge';
       docEntity.transformPreceding("toDir/file");
       await docEntity.flush();
       assert.equal(io.source.trim(), `
-import HogeHoge from "../fromDir/hogehoge";
-export * from "../fromDir/hogehoge";
-export default from "../fromDir/hogehoge";
+import HogeHoge from '../fromDir/hogehoge';
+export * from '../fromDir/hogehoge';
+export { default } from '../fromDir/hogehoge';
       `.trim());
       done();
     });
@@ -57,7 +57,7 @@ export default from "../fromDir/hogehoge";
       const io = new TestSourceIO(`
 import HogeHoge from './hogehoge';
 export * from './hogehoge';
-export default from './hogehoge';
+export { default } from './hogehoge';
       `);
       const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("test") });
       docEntity.reader = docEntity.writer = io;
@@ -65,24 +65,31 @@ export default from './hogehoge';
       docEntity.transformFollowing({ from: "hogehoge.js", to: "fuga.js" });
       await docEntity.flush();
       assert.equal(io.source.trim(), `
-import HogeHoge from "./fuga";
-export * from "./fuga";
-export default from "./fuga";
+import HogeHoge from './fuga';
+export * from './fuga';
+export { default } from './fuga';
       `.trim());
       done();
     });
 
-    it("should replace source twitce", async done => {
-      const io = new TestSourceIO("import HogeHoge from './hogehoge';" + "\n" + "import Piyo from './piyopiyo';");
+    it("adhoc", async done => {
+      const io = new TestSourceIO(`
+import HogeHoge from './hogehoge';
+
+import * as Bar from './bar';
+      `);
       const docEntity = new BabylonDocumentEntity({ fileRef: new DummyFile("test") });
       docEntity.reader = docEntity.writer = io;
       await docEntity.parse();
+      docEntity.transformFollowing({ from: "bar.js", to: "foo.js" });
       docEntity.transformFollowing({ from: "hogehoge.js", to: "fuga.js" });
+      docEntity.transformFollowing({ from: "foo.js", to: "piyo.js" });
       await docEntity.flush();
-      await docEntity.parse();
-      docEntity.transformFollowing({ from: "piyopiyo.js", to: "bar.js" });
-      await docEntity.flush();
-      assert.equal(io.source, `import HogeHoge from "./fuga";` + "\n" + `import Piyo from "./bar";`);
+      assert.equal(io.source.trim(), `
+import HogeHoge from './fuga';
+
+import * as Bar from './piyo';
+      `.trim());
       done();
     });
 
