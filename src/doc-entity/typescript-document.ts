@@ -9,38 +9,22 @@ import {
   Formatter,
   FileMappingOptions,
 } from "../types";
+
+import { AstDocumentEntity } from "./ast-document";
+
 import { noopPrettier } from "../formatter/prettier";
-import { getLogger } from "../logger";
+
 import {
   ShouldBeReplacedResult,
   SourceReplacement,
   shouldBeReplaced,
   shouldBeReplacedWithModuleMove,
-  applyReplacementToSource,
 } from "../functions";
+import { getLogger } from "../logger";
 
-type OriginalSourceLocation<T> = {
-  isOrigin: true;
-  node: T;
-};
-
-type SourceLocation<T> = {
-  isOrigin: false;
-  node: SourceLocation<T> | OriginalSourceLocation<T>;
-};
-
-interface Mutation<T> {
-  location: OriginalSourceLocation<T> | SourceLocation<T>;
-  replacement: T;
-  replacementText: string;
-}
-
-export class TypeScriptDocumentEntity implements DocumentEntity {
-  private _fref: FileRef;
+export class TypeScriptDocumentEntity extends AstDocumentEntity<ts.Node> implements DocumentEntity {
   private _dirty: boolean = true;
   private _source?: ts.SourceFile;
-  private _uncommitedMutations: Mutation<ts.Node>[] = [];
-  private _formatter: Formatter;
 
   reader!: SourceReader;
   writer!: SourceWriter;
@@ -56,9 +40,8 @@ export class TypeScriptDocumentEntity implements DocumentEntity {
     fileMappingOptions?: FileMappingOptions,
     formatter?: Formatter,
   }) {
-    this._fref= fileRef;
+    super({ fileRef, formatter: formatter || noopPrettier });
     this.fileMappingOptions = fileMappingOptions;
-    this._formatter = formatter || noopPrettier;
   }
 
   get fileRef() {
@@ -131,49 +114,6 @@ export class TypeScriptDocumentEntity implements DocumentEntity {
     return this;
   }
 
-  async flush(force: boolean = false) {
-    const replacements = this.getReplacements();
-    if (!replacements.length && !force) return this;
-    if (!this.sourceText) {
-      throw new Error("Cannot flush because the source or AST is not set.");
-    }
-    const newSrc = await this._formatter.format(applyReplacementToSource(this.sourceText, this.getReplacements()));
-    await this.writer.write(this.fileRef, newSrc);
-    getLogger().info(`write contents to "${this.fileRef.id}".`);
-    return this.clear();
-  }
-
-  async move(newFile: FileRef) {
-    if (this._fref.path === newFile.path) {
-      return this;
-    }
-    this._fref = newFile;
-    return this;
-  }
-
-  private _updateMutations(before: ts.Node, after: ts.Node, replacementText: string) {
-    if (before.parent) {
-      this._uncommitedMutations.push({
-        location: {
-          isOrigin: true,
-          node: before,
-        },
-        replacement: after,
-        replacementText,
-      });
-    } else {
-      const mutationToBeUpdated = this._uncommitedMutations.find(({ replacement }) => replacement === before);
-      if (mutationToBeUpdated) {
-        mutationToBeUpdated.location = {
-          isOrigin: false,
-          node: mutationToBeUpdated.location,
-        };
-        mutationToBeUpdated.replacement = after;
-        mutationToBeUpdated.replacementText = replacementText;
-      }
-    }
-  }
-
   private _createTransformerFactory(matcher: (sourceNode: ts.StringLiteral) => ShouldBeReplacedResult): ts.TransformerFactory<ts.SourceFile> {
     return (ctx: ts.TransformationContext) => {
       const visitNode = (node: ts.Node): ts.Node => {
@@ -183,7 +123,7 @@ export class TypeScriptDocumentEntity implements DocumentEntity {
             const matchReulst = matcher(expression);
             if (matchReulst.hit) {
               const newNode = ts.createLiteral(matchReulst.newModuleId);
-              this._updateMutations(expression, newNode, matchReulst.newModuleId);
+              this._updateMutations(expression, newNode, matchReulst.newModuleId, node => !!node.parent);
               getLogger().info(`${this.fileRef.id}: replacement "${expression.text}" to "${matchReulst.newModuleId}"`);
               return ts.updateImportDeclaration(node, node.decorators, node.modifiers, node.importClause, newNode);
             }
@@ -194,7 +134,7 @@ export class TypeScriptDocumentEntity implements DocumentEntity {
             const matchReulst = matcher(expression);
             if (matchReulst.hit) {
               const newNode = ts.createLiteral(matchReulst.newModuleId);
-              this._updateMutations(expression, newNode, matchReulst.newModuleId);
+              this._updateMutations(expression, newNode, matchReulst.newModuleId, node => !!node.parent);
               getLogger().info(`${this.fileRef.id}: replacement "${expression.text}" to "${matchReulst.newModuleId}"`);
               return ts.updateExportDeclaration(node, node.decorators, node.modifiers, node.exportClause, newNode);
             }

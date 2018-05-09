@@ -1,9 +1,3 @@
-declare module "@babel/generator" {
-  import * as t from 'babel-types';
-  import { GeneratorOptions, GeneratorResult } from "babel-generator";
-  export default function generate(ast: t.Node, opts?: GeneratorOptions, code?: string | {[filename: string]: string}): GeneratorResult;
-}
-
 declare module "@babel/traverse" {
   import * as t from "babel-types";
   import { NodePath, TraverseOptions, Scope } from "babel-traverse";
