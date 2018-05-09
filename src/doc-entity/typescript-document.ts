@@ -9,7 +9,7 @@ import {
   Formatter,
   FileMappingOptions,
 } from "../types";
-import { noopPrettier } from "../prettier";
+import { noopPrettier } from "../formatter/prettier";
 import { getLogger } from "../logger";
 import {
   ShouldBeReplacedResult,

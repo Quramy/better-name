@@ -28,7 +28,7 @@ import {
   ShouldBeReplacedResult,
   range,
 } from "../functions";
-import { Prettier, noopPrettier } from "../prettier";
+import { Prettier, noopPrettier } from "../formatter/prettier";
 
 
 export class BabylonDocumentEntity implements DocumentEntity {

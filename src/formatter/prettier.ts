@@ -3,8 +3,8 @@ import {
   resolveConfig,
   format,
 } from "prettier";
-import { Formatter } from "./types";
-import { getLogger } from "./logger";
+import { Formatter } from "../types";
+import { getLogger } from "../logger";
 
 export type PrettierOptions = {
   projectRoot: string,
