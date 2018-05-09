@@ -151,7 +151,7 @@ export class TypeScriptDocumentEntity implements DocumentEntity {
     return this;
   }
 
-  private _updateMurations(before: ts.Node, after: ts.Node, replacementText: string) {
+  private _updateMutations(before: ts.Node, after: ts.Node, replacementText: string) {
     if (before.parent) {
       this._uncommitedMutations.push({
         location: {
@@ -183,7 +183,7 @@ export class TypeScriptDocumentEntity implements DocumentEntity {
             const matchReulst = matcher(expression);
             if (matchReulst.hit) {
               const newNode = ts.createLiteral(matchReulst.newModuleId);
-              this._updateMurations(expression, newNode, matchReulst.newModuleId);
+              this._updateMutations(expression, newNode, matchReulst.newModuleId);
               getLogger().info(`${this.fileRef.id}: replacement "${expression.text}" to "${matchReulst.newModuleId}"`);
               return ts.updateImportDeclaration(node, node.decorators, node.modifiers, node.importClause, newNode);
             }
@@ -194,7 +194,7 @@ export class TypeScriptDocumentEntity implements DocumentEntity {
             const matchReulst = matcher(expression);
             if (matchReulst.hit) {
               const newNode = ts.createLiteral(matchReulst.newModuleId);
-              this._updateMurations(expression, newNode, matchReulst.newModuleId);
+              this._updateMutations(expression, newNode, matchReulst.newModuleId);
               getLogger().info(`${this.fileRef.id}: replacement "${expression.text}" to "${matchReulst.newModuleId}"`);
               return ts.updateExportDeclaration(node, node.decorators, node.modifiers, node.exportClause, newNode);
             }
