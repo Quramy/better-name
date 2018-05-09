@@ -20,7 +20,7 @@ function createOptions() {
     .option("h", { alias: "help" })
     .option("v", { alias: "verbose", desc: "Display debug logging messages.", boolean: true, default: false })
     .option("q", { alias: "quiet", desc: "Suppress logging messages", boolean: true, default: false })
-    .option("prettier", { boolean: true, desc: "Format with prettier", default: true })
+    .option("prettier", { boolean: true, desc: "Format with prettier", default: false })
     .option("version", { alias: "v", desc: "Print version number." }).version(getVersion())
     .option("pattern", { alias: "p", desc: "Project file glob pattern." })
     .option("test", { boolean: true, desc: "Run test mode.", default: false })
@@ -49,7 +49,7 @@ async function main() {
     logger._level = "verbose";
   }
   if (argv.pattern) additionalConf.patterns = [argv.pattern];
-  if (!argv.prettier) additionalConf.prettier = false;
+  if (argv.prettier) additionalConf.prettier = true;
   if (argv.test) additionalConf.test = true;
   const prj = await createDefaultProject({ ...additionalConf, rootDir: process.cwd() });
   await rename(prj, argv._[0], argv._[1]);
