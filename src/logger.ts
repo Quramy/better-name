@@ -43,7 +43,7 @@ export class ConsoleLogger implements Logger{
   }
 }
 
-let _logger = new ConsoleLogger("silent");
+let _logger = new ConsoleLogger((process.env.BN_LOG as LogLevel) || "silent");
 
 export function offLogger() {
   _logger._level = "silent";
