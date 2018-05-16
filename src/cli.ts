@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import * as yargs from "yargs";
-import { createDefaultProject } from "./project";
+import { createDefaultProject, ProjectOptions } from "./project";
 import { rename } from "./rename";
 import { setupLogger, getLogger } from "./logger";
+import { FileMappingOptions } from "./types";
 
 function getVersion(){
   try {
@@ -19,10 +20,11 @@ function createOptions() {
     .help()
     .option("h", { alias: "help" })
     .option("v", { alias: "verbose", desc: "Display debug logging messages.", boolean: true, default: false })
+    .option("p", { alias: "pattern", desc: "Project file glob pattern." })
     .option("q", { alias: "quiet", desc: "Suppress logging messages", boolean: true, default: false })
     .option("prettier", { boolean: true, desc: "Format with prettier", default: false })
-    .option("version", { alias: "v", desc: "Print version number." }).version(getVersion())
-    .option("pattern", { alias: "p", desc: "Project file glob pattern." })
+    .option("version", { desc: "Print version number." }).version(getVersion())
+    .option("normalize-root-import", { desc: "Don't use root-import prefixed module source path after replacing. This option makes sense with using babel-root-import.", boolean: true, default: false })
     .option("test", { boolean: true, desc: "Run test mode.", default: false })
   ;
   return yargs.argv as {
@@ -32,6 +34,7 @@ function createOptions() {
     quiet?: boolean,
     prettier?: boolean,
     test?: boolean,
+    normalizeRootImport?: boolean,
   };
 }
 
@@ -42,7 +45,9 @@ async function main() {
     yargs.showHelp();
     return;
   }
-  const additionalConf = { } as { patterns?: string[], prettier?: boolean, test?: boolean };
+  const additionalConf = {
+    fileMapping: { normalizeRootImport: false } as FileMappingOptions,
+  } as ProjectOptions;
   if (argv.quiet) {
     logger._level = "silent";
   } else if(argv.verbose) {
@@ -51,6 +56,7 @@ async function main() {
   if (argv.pattern) additionalConf.patterns = [argv.pattern];
   if (argv.prettier) additionalConf.prettier = true;
   if (argv.test) additionalConf.test = true;
+  if (argv.normalizeRootImport) additionalConf.fileMapping!.normalizeRootImport = true;
   const prj = await createDefaultProject({ ...additionalConf, rootDir: process.cwd() });
   await rename(prj, argv._[0], argv._[1]);
 }

@@ -173,6 +173,22 @@ describe("shouldBeReplacedWithModuleMove", () => {
         } as ShouldBeReplacedResult);
       });
 
+      it("should replace correctly", () => {
+        assert.deepEqual(shouldBeReplacedWithModuleMove({
+          targetFileId: "src/feat-a/fuga.js",
+          targetModuleName: "~/feat-b/hogehoge",
+          movingFileId: "src/feat-b/hogehoge.js",
+          toFileId: "src/feat-b/newHoge.js",
+          opt: {
+            rootImport: [{ rootPathSuffix: "src" }],
+            normalizeRootImport: true,
+          },
+        }), {
+          hit: true,
+          newModuleId: "../feat-b/newHoge",
+        } as ShouldBeReplacedResult);
+      });
+
       it("should replace with complex conf", () => {
         assert.deepEqual(shouldBeReplacedWithModuleMove({
           targetFileId: "some-package/src/page/containers/index.jsx",

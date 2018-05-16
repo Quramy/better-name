@@ -17,6 +17,23 @@ export function awesome() {
 "
 `;
 
+exports[`integration test babel_root_import_prj_flatten 1`] = `
+"
+// id: src/feat-a/index.js
+
+import { awesome } from '../feat-b/util';
+
+awesome();
+
+
+// id: src/feat-b/util.js
+
+export function awesome() {
+  return 'awesome!';
+}
+"
+`;
+
 exports[`integration test css_modules_prj 1`] = `
 "
 // id: src/app.jsx

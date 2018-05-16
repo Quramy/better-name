@@ -29,7 +29,7 @@ export function range(x: number) {
   return ret;
 }
 
-export function replaceRootImport(moduleName: string, fileId: string, config: RootImportConfig) {
+export function replaceRootImport(moduleName: string, fileId: string, config: RootImportConfig, normalizeRootImport: boolean = false) {
   const prefix = (config.rootPathPrefix || "~") + "/";
   const suffix = config.rootPathSuffix || "";
   if (!moduleName.startsWith(prefix)) {
@@ -42,6 +42,7 @@ export function replaceRootImport(moduleName: string, fileId: string, config: Ro
   const dir = path.dirname(fileId);
   const rel = path.relative(dir, moduleFileId);
   const decorate = (name: string) => {
+    if (normalizeRootImport) return name;
     const resolved = prefix + path.relative(suffix, path.normalize(path.join(dir, name)));
     return /\/\.\.\//.test(resolved) ? name : resolved;
   };
@@ -88,7 +89,7 @@ export function shouldBeReplacedWithModuleMove({
   let decorate = (name: string) => name;
   if (opt.rootImport && opt.rootImport.length) {
     const result = opt.rootImport.reduce((acc, conf) => {
-      const tmp = replaceRootImport(acc.moduleName, targetFileId, conf);
+      const tmp = replaceRootImport(acc.moduleName, targetFileId, conf, opt.normalizeRootImport);
       return { moduleName: tmp.moduleName, decorateWithConfig: (name: string) => tmp.decorateWithConfig(acc.decorateWithConfig(name)) };
     }, { moduleName: targetModuleName, decorateWithConfig: (name: string) => name });
     targetModuleName = result.moduleName;

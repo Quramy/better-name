@@ -90,6 +90,15 @@ You also can configure path mapping via package.json such as:
   }
 ```
 
+If you want to avoid prefixing after replacing, `--normalize-root-import` CLI option or the following package.json setting is available:
+
+```js
+  /* package.json */
+  "betterName": {
+    "normalizeRootImport": true
+  }
+```
+
 #### Format with Prettier
 This CLI format your code after replace import declarations if your project has Prettier config file(.prettierrc, .prettierrc.js,,,).
 You can turn on this behavior passing `--prettier` options to CLI.

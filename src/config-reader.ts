@@ -51,22 +51,26 @@ export function extractRootImportConfigFromBabelrc(babelrc: BabelrcType): RootIm
   return conf;
 }
 
-export async function readRootImportConfig(rootDir: string) {
+export async function readRootImportConfig(rootDir: string): Promise<{ rootImport: RootImportConfig[], normalizeRootImport: boolean }> {
   try {
-    const ret: RootImportConfig[] = [];
+    let rootImportConfigList: RootImportConfig[] = [];
+    let normalizeRootImport = false;
     if (exists(rootDir, "package.json")) {
       const pkg = await readFileAsJson(rootDir, "package.json");
       if (pkg["betterName"] && pkg["betterName"]["rootImport"]) {
         getLogger().verbose("load babel-root-import config from package.json");
-        return pkg["betterName"]["rootImport"] as RootImportConfig[];
+        rootImportConfigList = pkg["betterName"]["rootImport"] as RootImportConfig[];
+      }
+      if (pkg["betterName"] && pkg["betterName"]["normalizeRootImport"]) {
+        normalizeRootImport = pkg["betterName"]["normalizeRootImport"];
       }
     }
     if (exists(rootDir, ".babelrc")) {
       const babelrc = await readFileAsJson(rootDir, ".babelrc");
-      return extractRootImportConfigFromBabelrc(babelrc);
+      rootImportConfigList = extractRootImportConfigFromBabelrc(babelrc);
     }
-    return [] as RootImportConfig[];
+    return { rootImport: rootImportConfigList, normalizeRootImport };
   } catch(err) {
-    return [] as RootImportConfig[];
+    return { rootImport: [] as RootImportConfig[], normalizeRootImport: false };
   }
 }

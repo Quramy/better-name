@@ -105,6 +105,19 @@ describe("integration test", () => {
     }
   });
 
+  it("babel_root_import_prj_flatten", async done => {
+    const rootDir = path.join(__dirname, "test-fixtures/babel_root_import_prj_flatten");
+    const prj = await createProject<TestProject>(TestProject, { rootDir });
+    expect(prj.getFileMappingOptions().rootImport).toBeTruthy();
+    try {
+      await rename(prj, path.join(rootDir, "src/common/util.js"), path.join(rootDir, "src/feat-b/util.js"));
+      expect(prj.getSnapshot()).toMatchSnapshot();
+      done();
+    } catch (err) {
+      done(err);
+    }
+  });
+
   it("css_modules_prj", async done => {
     const rootDir = path.join(__dirname, "test-fixtures/css_modules_prj");
     const prj = await createProject<TestProject>(TestProject, { rootDir });

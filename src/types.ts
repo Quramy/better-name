@@ -65,6 +65,7 @@ export type RootImportConfig = {
 
 export type FileMappingOptions = {
   rootImport?: RootImportConfig[];
+  normalizeRootImport?: boolean;
 };
 
 export type FindQuery = {

@@ -129,7 +129,7 @@ export type AllProjectOptions = {
 
 export const defaultProjectConfig = {
   patterns: ["src/**/*.{js,mjs,jsx,ts,tsx}", "!node_modules/**/*"],
-  fileMapping: { },
+  fileMapping: { } as FileMappingOptions,
   prettier: true,
   test: false,
 };
@@ -138,11 +138,12 @@ export type ProjectOptions = $PartialOptional<AllProjectOptions, typeof defaultP
 
 export async function createProject<X extends DefaultProject>(k: typeof DefaultProject, configuration: ProjectOptions) {
   const { rootDir } = configuration;
-  const rootImport = await readRootImportConfig(rootDir);
+  const ric = await readRootImportConfig(rootDir);
   const readConf = await readProjectConfig(rootDir);
   const conf = { ...defaultProjectConfig,  ...readConf, ...configuration };
   conf.fileMapping = {
-    rootImport: rootImport,
+    ...ric,
+    ...conf.fileMapping,
   };
   getLogger().verbose("project configurations: ", conf);
   const prj = new k({
