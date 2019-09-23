@@ -1,6 +1,6 @@
 {
   "name": "better-name",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "CLI to rename ES2015 module files",
   "bin": {
     "better-name": "lib/cli.js"
@@ -31,7 +31,7 @@
     "@types/glob": "^5.0.35",
     "@types/jest": "^22.2.2",
     "@types/mkdirp": "^0.5.2",
-    "@types/node": "^9.6.2",
+    "@types/node": "^12.7.5",
     "@types/prettier": "^1.12.0",
     "@types/rimraf": "^2.0.2",
     "@types/yargs": "^11.0.0",
@@ -51,7 +51,7 @@
     "mkdirp": "^0.5.1",
     "prettier": "^1.12.1",
     "rimraf": "^2.6.2",
-    "typescript": "^2.4.1",
+    "typescript": "^3.5.0",
     "yargs": "^11.0.0"
   },
   "jest": {
