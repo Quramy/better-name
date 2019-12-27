@@ -1,6 +1,6 @@
 {
   "name": "better-name",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "CLI to rename ES2015 module files",
   "bin": {
     "better-name": "lib/cli.js"
