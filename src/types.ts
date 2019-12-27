@@ -36,7 +36,7 @@ export interface TransformOptions {
 }
 
 export interface Formatter {
-  format(code: string): Promise<string>;
+  format(filePath: string, code: string): Promise<string>;
 }
 
 export interface DocumentEntityCreateOptions {

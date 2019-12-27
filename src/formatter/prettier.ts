@@ -34,11 +34,11 @@ export class Prettier implements Formatter {
     return this._options;
   }
 
-  async format(code: string) {
+  async format(filePath: string, code: string) {
     if (!this._enabled) return code;
     const options = await this.readConfig();
     if (!options) return code;
-    return await format(code, options);
+    return await format(code, { ...options, filepath: filePath });
   }
 }
 

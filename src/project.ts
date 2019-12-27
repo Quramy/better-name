@@ -130,7 +130,7 @@ export type AllProjectOptions = {
 export const defaultProjectConfig = {
   patterns: ["src/**/*.{js,mjs,jsx,ts,tsx}", "!node_modules/**/*"],
   fileMapping: { } as FileMappingOptions,
-  prettier: true,
+  prettier: false,
   test: false,
 };
 

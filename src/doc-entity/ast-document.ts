@@ -41,7 +41,7 @@ export abstract class AstDocumentEntity<T> {
     if (!this.sourceText) {
       throw new Error("Cannot flush because the source or AST is not set.");
     }
-    const newSrc = await this._formatter.format(applyReplacementToSource(this.sourceText, this.getReplacements()));
+    const newSrc = await this._formatter.format(this._fref.path, applyReplacementToSource(this.sourceText, this.getReplacements()));
     await this.writer.write(this._fref, newSrc);
     getLogger().info(`write contents to "${this._fref.id}".`);
     return this.clear();
