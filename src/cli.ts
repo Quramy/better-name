@@ -53,7 +53,13 @@ async function main() {
   } else if(argv.verbose) {
     logger._level = "verbose";
   }
-  if (argv.pattern) additionalConf.patterns = [argv.pattern];
+  if (argv.pattern) {
+    if (typeof argv.pattern === "string") {
+      additionalConf.patterns = [argv.pattern];
+    } else if (Array.isArray(argv.pattern)) {
+      additionalConf.patterns = argv.pattern;
+    }
+  }
   if (argv.prettier) additionalConf.prettier = true;
   if (argv.test) additionalConf.test = true;
   if (argv.normalizeRootImport) additionalConf.fileMapping!.normalizeRootImport = true;
